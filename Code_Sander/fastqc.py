@@ -1,16 +1,8 @@
+"""
+Module which handles the backend of fastqc.
+"""
+
 import os
-import sys
-
-
-def process_status(filename, output_folder):
-    """Checks if both html and zipfile are already in the output file."""
-    filename = os.path.basename(filename)
-    html = f"{output_folder}/{filename.split('.')[0]}_fastqc.html"
-    zip_file = f"{output_folder}/{filename.split('.')[0]}_fastqc.zip"
-    if os.path.exists(html) and os.path.exists(zip_file):
-        return True
-    else:
-        return False
 
 
 class Fastqc_file:
@@ -69,6 +61,17 @@ class Fastqc_manager:
             print("No files to process")
         else:
             os.system(parameters)
+
+
+def process_status(filename, output_folder):
+    """Checks if both html and zipfile are already in the output file."""
+    filename = os.path.basename(filename)
+    html = f"{output_folder}/{filename.split('.')[0]}_fastqc.html"
+    zip_file = f"{output_folder}/{filename.split('.')[0]}_fastqc.zip"
+    if os.path.exists(html) and os.path.exists(zip_file):
+        return True
+    else:
+        return False
 
 
 def main():
