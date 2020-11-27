@@ -6,7 +6,6 @@ import glob
 from multiprocessing import process, queues
 import multiqc
 
-
 # Data can be found at: /data/storix2/student/2019-2020/Thema06/project-data/How_to_deal_with_difficult_data/Data"
 # default_output = "/homes/sjbouwman/Thema06"
 picard = ""
@@ -15,7 +14,7 @@ featureCounts = ""
 trimGalore = ""
 
 SUBDIRS = {'fastqc': {'reports': None},
-          'output': {'bam-files': None}}
+           'output': {'trimmed_data': None}}
 
 
 class Inputargs():
