@@ -30,6 +30,9 @@ class Fasta_processor:
         return 0
 
     def create_dict_name(self):
+        """
+        Create dictionary name
+        """
         base = self.fasta.split(".")
         dict_name = f"{base[:-1]}.dict"
         return dict_name
