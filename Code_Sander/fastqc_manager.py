@@ -111,7 +111,8 @@ class Fastqc_manager:
         """
         Returns parameters which will be run with the fastQC tool
         """
-        return f"Output path: {self.output_path}\n" \
+        return f"fastqc ran with the following parameters:\n" \
+               f"Output path: {self.output_path}\n" \
                f"input folder: {self.fastq_path}\n" \
                f"Max threads: {self.max_threads}\n" \
                f"Skip files: {self.skip_processed}"
