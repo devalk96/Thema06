@@ -42,6 +42,7 @@ class Preprocessing:
                   f"INPUT={self.output_dir}/Preprocessing/addOrReplace/{filename}.bam")
         os.system(f"java -jar {self.picard} MergeSamFiles INPUT={self.output_dir}/Preprocessing/addOrReplace/{filename}.bam "
                   f"OUTPUT={self.output_dir}Preprocessing/mergeSam/{filename}.bam CREATE_INDEX=true USE_THREADING=true")
+        os.system(f"java -jar {self.picard}")
 
 
 def main():
