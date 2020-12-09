@@ -75,7 +75,10 @@ def main():
 
     aligner = alignment.Alignment(directory=f"{args.outputDir}/output/trimmed_data",
                                   tool_path=TOOL_LOCATION["minimap2"],
-                                  refseq="")
+                                  refseq="",
+                                  output_path=f"{args.outputDir}/output/sam_files")
+    aligner.processing()
+
     return 0
 
 
