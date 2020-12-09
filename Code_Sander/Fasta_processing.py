@@ -34,7 +34,7 @@ class Fasta_processor:
         Create dictionary name
         """
         base = self.fasta.split(".")
-        dict_name = f"{base[:-1]}.dict"
+        dict_name = f"{'.'.join(base[:-1])}.dict"
         return dict_name
 
     def create_fa_fai(self):
