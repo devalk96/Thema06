@@ -24,7 +24,6 @@ class Fastqc_manager:
     """
     Fastqc_manager is used to process the fastqc tool.
     """
-
     def __init__(self, fastq_folder, output, tool_path, skip=True, threads=4):
         self.fastq_path = fastq_folder
         self.max_threads = threads
@@ -88,7 +87,6 @@ class Fastqc_manager:
         """
         Checks if all values in file are the same. e.g. ALl files with the score 14
         """
-        averages = None
         starting_line_found = False
         file = []
         score = None
@@ -106,7 +104,7 @@ class Fastqc_manager:
                 line = [value.replace("NaN", "").replace("'", "") for value in line] # REMOVE NON AND '
                 line = [float(x) for x in list(filter(None, line))]
                 score = line[0]
-                file.append(all([x == line[0] for x in line]))
+                file.append(all([x == line[0] for x in line]))  # Are all values of lines true
         return all(file), score
 
     def settings(self):

@@ -14,16 +14,13 @@ import glob
 # example run parameters:   python3 --fastqDir /data/storix2/student/2019-2020/Thema06/project-data/How_to_deal_with_difficult_data/Data --out /homes/sjbouwman/Thema06 --threads 16
 
 
-
-
-
 # Nested dictionaries for creating directories
 SUBDIRS = {'fastqc': {'reports': None},
            'output': {'trimmed_data': None}}
 
 # Tool location
 TOOL_LOCATION = {"fastqc": "fastqc",
-                 "ptrimmer": "/data/storix2/student/2020-2021/Thema10/tmp/tools/ptrimmer"}
+                 "trimgalore": "/data/storix2/student/2020-2021/Thema10/tmp/tools/ptrimmer"}
 
 
 def construct_parser():
@@ -50,39 +47,18 @@ def validate_input(parser, args):
         parser.error(f"Path to {args} not found!")
 
 
-class Qualitycheck():
-    def __init__(self, input_path, output_path, threads=4, skip_existing=False):
-        self.fastq_files = [f"{input_path}/{x}" for x in os.listdir(input_path)]
-        self.output_path = directorymanager.create_dirs(file_root=output_path, subdirs=SUBDIRS)
-        self.threads = threads
-        self.skip_existing = skip_existing
-
-        self.fastQC_manager = fastqc_manager.Fastqc_manager(fastq_folder=input_path,
-                                                            output=f"{self.output_path}/fastqc/reports",
-                                                            threads=self.threads,
-                                                            skip=self.skip_existing,
-                                                            tool_path=TOOL_LOCATION["fastqc"])
-        self.file_list = self.fastQC_manager.files_list
-        
-
-    def generate_multiqc(self):
-        pass
-
-
-
-
 def main():
     parser = construct_parser()
     args = parser.parse_args()
     validate_input(parser, args)
-
-    data = Qualitycheck(input_path=args.fastqDir,
-                        output_path=args.outputDir,
-                        threads=args.threads,
-                        skip_existing=args.skip)
-
-    print(data.fastQC_manager.settings())
-    data.fastQC_manager.run_fastqc()
+    directorymanager.create_dirs(file_root=args.outputDir, subdirs=SUBDIRS)
+    manager = fastqc_manager.Fastqc_manager(fastq_folder=args.fastqDir,
+                                            output=f"{args.outputDir}/fastqc/reports",
+                                            tool_path=TOOL_LOCATION["fastqc"],
+                                            skip=args.skip,
+                                            threads=args.threads)
+    print(manager.settings())
+    manager.run_fastqc()
 
     return 0
 

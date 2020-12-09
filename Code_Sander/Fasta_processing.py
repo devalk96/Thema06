@@ -10,6 +10,7 @@ __status__ = "Working Module"
 __version__ = "1.0"
 
 import os
+import sys
 
 
 class Fasta_processor:
