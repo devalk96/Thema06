@@ -12,7 +12,7 @@ class Alignment:
     """
     def __init__(self, directory, tool, refseq):
         self.directory = directory
-        self.tool = tool
+        self.tool_path = tool
         self.refseq = refseq
 
     def getting_ready(self):

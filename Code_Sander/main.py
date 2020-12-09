@@ -7,6 +7,8 @@ import argparse
 import os
 import Code_Sander.directory_manager as directorymanager
 import Code_Sander.fastqc_manager as fastqc_manager
+import Code_Sander.thrimmer_manager as thrimmer_manager
+import Code_Sander.alignment as alignment
 import glob
 
 # Data can be found at: /data/storix2/student/2019-2020/Thema06/project-data/How_to_deal_with_difficult_data/Data"
@@ -16,11 +18,13 @@ import glob
 
 # Nested dictionaries for creating directories
 SUBDIRS = {'fastqc': {'reports': None},
-           'output': {'trimmed_data': None}}
+           'output': {'trimmed_data': None,
+                      'sam_files': None}}
 
 # Tool location
 TOOL_LOCATION = {"fastqc": "fastqc",
-                 "trimgalore": "/data/storix2/student/2020-2021/Thema10/tmp/tools/ptrimmer"}
+                 "trimgalore": "/homes/sjbouwman/.local/bin/cutadapt",
+                 "minimap2": ""}
 
 
 def construct_parser():
@@ -35,6 +39,7 @@ def construct_parser():
     parser.add_argument('-p', '--threads', help='Define number of threads to use', default=4, type=int)
     parser.add_argument('-t', '--trim', help='Define the last bp to keep for trimming')
     parser.add_argument('-S', '--skip', help='Skip already processed files', action="store_true", default=False)
+    parser.add_argument('-q', '--quality', help='Define cut-off value for trimming')
     return parser
 
 
@@ -59,7 +64,18 @@ def main():
                                             threads=args.threads)
     print(manager.settings())
     manager.run_fastqc()
+    trimmer = thrimmer_manager.Trimmer_manager(output=f"{args.outputDir}/output/trimmed_data",
+                                               tool_path=TOOL_LOCATION["trimgalore"],
+                                               file_list=manager.files_list,
+                                               threads=args.threads,
+                                               skip=args.skip,
+                                               quality=args.quality)
 
+    # trimmer.run_trimmer()
+
+    aligner = alignment.Alignment(directory=f"{args.outputDir}/output/trimmed_data",
+                                  tool_path=TOOL_LOCATION["minimap2"],
+                                  refseq="")
     return 0
 
 

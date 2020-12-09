@@ -5,7 +5,8 @@ Module which handles the backend of fastqc.
 import os
 import glob
 import zipfile
-import pandas as pd
+import gzip
+
 
 class Fastqc_file:
     """
@@ -18,12 +19,31 @@ class Fastqc_file:
         self.filename = os.path.basename(self.path)
         self.processed_status = process_status(filename=self.filename, output_folder=self.output_folder)
         self.file_corrupt = False
+        self.paired = self.isPaired()
+
+    def isPaired(self):
+        """
+        Checks if file is paired or not. If the identifier contains a '/' symbol, this method will return a 1 or 2.
+        If there is no '/' symbol. Method will return False.
+        Uses find method to check if '/' in identifier. If there is no '/'. Find returns -1 else index is returned.
+        """
+
+        # If file is compressed as gz. Module gzip is used instead of built-in open function
+        if self.filename.split(".")[-1] == "gz":
+            with gzip.open(self.path, "r") as stream:
+                identifier = stream.readline().decode("utf-8").rstrip()
+        else:
+            with open(self.path, "r") as stream:
+                identifier = stream.readline().rstrip()
+
+        return identifier[identifier.find("/")] if identifier.find("/") != -1 else False
 
 
 class Fastqc_manager:
     """
     Fastqc_manager is used to process the fastqc tool.
     """
+
     def __init__(self, fastq_folder, output, tool_path, skip=True, threads=4):
         self.fastq_path = fastq_folder
         self.max_threads = threads
@@ -101,7 +121,7 @@ class Fastqc_manager:
 
             if starting_line_found:
                 line = line.split("\t")[1:]
-                line = [value.replace("NaN", "").replace("'", "") for value in line] # REMOVE NON AND '
+                line = [value.replace("NaN", "").replace("'", "") for value in line]  # REMOVE NON AND '
                 line = [float(x) for x in list(filter(None, line))]
                 score = line[0]
                 file.append(all([x == line[0] for x in line]))  # Are all values of lines true
@@ -115,7 +135,7 @@ class Fastqc_manager:
                f"Output path: {self.output_path}\n" \
                f"input folder: {self.fastq_path}\n" \
                f"Max threads: {self.max_threads}\n" \
-               f"Skip files: {self.skip_processed}"
+               f"Skip files: {self.skip_processed}\n\n"
 
 
 def process_status(filename, output_folder):
