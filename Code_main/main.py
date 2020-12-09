@@ -5,10 +5,10 @@ Main script.
 import sys
 import argparse
 import os
-import Code_Sander.directory_manager as directorymanager
-import Code_Sander.fastqc_manager as fastqc_manager
-import Code_Sander.thrimmer_manager as thrimmer_manager
-import Code_Sander.alignment as alignment
+import Code_main.directory_manager as directorymanager
+import Code_main.fastqc_manager as fastqc_manager
+import Code_main.thrimmer_manager as thrimmer_manager
+import Code_main.alignment as alignment
 import glob
 
 # Data can be found at: /data/storix2/student/2019-2020/Thema06/project-data/How_to_deal_with_difficult_data/Data"
