@@ -13,9 +13,17 @@ class Trimmer_manager:
 
     def run_trimmer(self):
         for file in self.file_list:
-            command = f"{self.tool_path} "
-            input("Done")
+            filename = file.filename.split(".")[0]
+            command = f"{self.tool_path} {file.path} -o {self.output_path + filename} -j {self.max_threads}"
             os.system(command)
+            print(f"Done with file {file.filename}")
+
+    def settings(self):
+        return f"Trimmer ran with the following parameters:\n" \
+               f"Output path: {self.output_path}\n" \
+               f"quality: {self.quality}\n" \
+               f"Max threads: {self.max_threads}\n" \
+               f"Skip files: {self.skip_processed}\n\n"
 
 def main():
     data = Trimmer_manager(

@@ -70,14 +70,14 @@ def main():
                                                threads=args.threads,
                                                skip=args.skip,
                                                quality=args.quality)
-
-    # trimmer.run_trimmer()
+    print(trimmer.settings())
+    trimmer.run_trimmer()
 
     aligner = alignment.Alignment(directory=f"{args.outputDir}/output/trimmed_data",
                                   tool_path=TOOL_LOCATION["minimap2"],
                                   refseq="",
                                   output_path=f"{args.outputDir}/output/sam_files")
-    aligner.processing()
+    # aligner.processing()
 
     return 0
 
