@@ -4,7 +4,7 @@ import glob
 
 class Trimmer_manager:
     def __init__(self, output, tool_path, cutadapt_path, file_list, quality=20, threads=8, skip=False):
-        self.max_threads = 8 # Hardcoded
+        self.max_threads = threads # Hardcoded
         self.skip_processed = skip
         self.output_path = output
         self.tool_path = tool_path
@@ -15,11 +15,12 @@ class Trimmer_manager:
     def run_trimmer(self):
         for file in self.file_list:
             if file.file_corrupt:
-                print(f"File {file.filename} is corrupt. So trimmer won't run.")
+                print(f"Skipping {file.filename} as it is marked corrupt by fastqc_manager")
                 continue
 
             output = f"{self.output_path}/{file.filename.split('.')[0]}"
-            command = f"{self.tool_path} {file.path} -o {output} -j {self.max_threads} --path_to_cutadapt {self.cutadapt_path} -q {self.quality}"
+            threads = self.max_threads if self.max_threads <= 8 else 8
+            command = f"{self.tool_path} {file.path} -o {output} -j {threads} --path_to_cutadapt {self.cutadapt_path} -q {self.quality}"
             os.system(command)
             print(f"Done with file {file.filename}")
 
