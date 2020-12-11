@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 
 """
-Fasta processing steps
+Preprossessing for count file
 """
 
 
