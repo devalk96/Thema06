@@ -88,7 +88,7 @@ class Fastqc_manager:
             print("No fastqc files to process")
         else:
             os.system(parameters)
-            self.validate_results()
+        self.validate_results()
 
     def validate_results(self):
         for file in self.files_list:

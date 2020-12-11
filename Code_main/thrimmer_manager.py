@@ -14,9 +14,12 @@ class Trimmer_manager:
 
     def run_trimmer(self):
         for file in self.file_list:
-            filename = file.filename.split(".")[0]
-            print(f"{self.tool_path} {file.path} -o {self.output_path + '/' + filename} -j {self.max_threads} --path_to_cutadapt {self.cutadapt_path} -q {self.quality}")
-            command = f"{self.tool_path} {file.path} -o {self.output_path + '/' + filename} -j {self.max_threads} --path_to_cutadapt {self.cutadapt_path} -q {self.quality}"
+            if file.file_corrupt:
+                print(f"File {file.filename} is corrupt. So trimmer won't run.")
+                continue
+
+            output = f"{self.output_path}/{file.filename.split('.')[0]}"
+            command = f"{self.tool_path} {file.path} -o {output} -j {self.max_threads} --path_to_cutadapt {self.cutadapt_path} -q {self.quality}"
             os.system(command)
             print(f"Done with file {file.filename}")
 

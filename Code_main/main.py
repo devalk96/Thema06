@@ -64,7 +64,7 @@ def main():
                                             tool_path=TOOL_LOCATION["fastqc"],
                                             skip=args.skip,
                                             threads=args.threads)
-    print(manager.settings())
+    # print(manager.settings())
     manager.run_fastqc()
     trimmer = thrimmer_manager.Trimmer_manager(output=f"{args.outputDir}/output/trimmed_data",
                                                tool_path=TOOL_LOCATION["trimgalore"],
@@ -73,7 +73,7 @@ def main():
                                                skip=args.skip,
                                                quality=args.quality,
                                                cutadapt_path=TOOL_LOCATION["cutadapt"])
-    print(trimmer.settings())
+    # print(trimmer.settings())
     trimmer.run_trimmer()
 
     aligner = alignment.Alignment(directory=f"{args.outputDir}/output/trimmed_data",
