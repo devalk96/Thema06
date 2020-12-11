@@ -15,6 +15,7 @@ import glob
 # default_output = "/homes/sjbouwman/Thema06"
 # example run parameters:   python3 --fastqDir /data/storix2/student/2019-2020/Thema06/project-data/How_to_deal_with_difficult_data/Data --out /homes/sjbouwman/Thema06 --threads 16
 
+# Make sure cutadapt is install --> pip3 install cutadapt --user
 
 # Nested dictionaries for creating directories
 SUBDIRS = {'fastqc': {'reports': None},
@@ -23,8 +24,9 @@ SUBDIRS = {'fastqc': {'reports': None},
 
 # Tool location
 TOOL_LOCATION = {"fastqc": "fastqc",
-                 "trimgalore": "data/storix2/student/2020-2021/Thema10/tmp/tools/pipeline_tools/TrimGalore",
-                 "minimap2": ""}
+                 "trimgalore": "/data/storix2/student/2020-2021/Thema10/tmp/tools/pipeline_tools/TrimGalore/trim_galore",
+                 "minimap2": "",
+                 "cutadapt": "/homes/sjbouwman/.local/bin/cutadapt"}
 
 
 def construct_parser():
@@ -39,7 +41,7 @@ def construct_parser():
     parser.add_argument('-p', '--threads', help='Define number of threads to use', default=4, type=int)
     parser.add_argument('-t', '--trim', help='Define the last bp to keep for trimming')
     parser.add_argument('-S', '--skip', help='Skip already processed files', action="store_true", default=False)
-    parser.add_argument('-q', '--quality', help='Define cut-off value for trimming')
+    parser.add_argument('-q', '--quality', help='Define cut-off value for trimming', type=int, default=20)
     return parser
 
 
@@ -69,7 +71,8 @@ def main():
                                                file_list=manager.files_list,
                                                threads=args.threads,
                                                skip=args.skip,
-                                               quality=args.quality)
+                                               quality=args.quality,
+                                               cutadapt_path=TOOL_LOCATION["cutadapt"])
     print(trimmer.settings())
     trimmer.run_trimmer()
 

@@ -3,18 +3,20 @@ import glob
 
 
 class Trimmer_manager:
-    def __init__(self, output, tool_path, file_list, quality=20, threads=8, skip=False):
-        self.max_threads = threads
+    def __init__(self, output, tool_path, cutadapt_path, file_list, quality=20, threads=8, skip=False):
+        self.max_threads = 8 # Hardcoded
         self.skip_processed = skip
         self.output_path = output
         self.tool_path = tool_path
         self.file_list = file_list
         self.quality = quality
+        self.cutadapt_path = cutadapt_path
 
     def run_trimmer(self):
         for file in self.file_list:
             filename = file.filename.split(".")[0]
-            command = f"{self.tool_path} {file.path} -o {self.output_path + filename} -j {self.max_threads}"
+            print(f"{self.tool_path} {file.path} -o {self.output_path + '/' + filename} -j {self.max_threads} --path_to_cutadapt {self.cutadapt_path} -q {self.quality}")
+            command = f"{self.tool_path} {file.path} -o {self.output_path + '/' + filename} -j {self.max_threads} --path_to_cutadapt {self.cutadapt_path} -q {self.quality}"
             os.system(command)
             print(f"Done with file {file.filename}")
 
