@@ -27,7 +27,6 @@ class Fastqc_file:
         If there is no '/' symbol. Method will return False.
         Uses find method to check if '/' in identifier. If there is no '/'. Find returns -1 else index is returned.
         """
-
         # If file is compressed as gz. Module gzip is used instead of built-in open function
         if self.filename.split(".")[-1] == "gz":
             with gzip.open(self.path, "r") as stream:
@@ -35,7 +34,6 @@ class Fastqc_file:
         else:
             with open(self.path, "r") as stream:
                 identifier = stream.readline().rstrip()
-
         return identifier[identifier.find("/")] if identifier.find("/") != -1 else False
 
 

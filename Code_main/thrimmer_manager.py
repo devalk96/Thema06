@@ -4,7 +4,7 @@ import glob
 
 class Trimmer_manager:
     def __init__(self, output, tool_path, cutadapt_path, file_list, quality=20, threads=8, skip=False):
-        self.max_threads = threads # Hardcoded
+        self.max_threads = threads  # Hardcoded
         self.skip_processed = skip
         self.output_path = output
         self.tool_path = tool_path
@@ -22,6 +22,7 @@ class Trimmer_manager:
             threads = self.max_threads if self.max_threads <= 8 else 8
             command = f"{self.tool_path} {file.path} -o {output} -j {threads} --path_to_cutadapt {self.cutadapt_path} -q {self.quality}"
             os.system(command)
+
             print(f"Done with file {file.filename}")
 
     def settings(self):
@@ -30,6 +31,7 @@ class Trimmer_manager:
                f"quality: {self.quality}\n" \
                f"Max threads: {self.max_threads}\n" \
                f"Skip files: {self.skip_processed}\n\n"
+
 
 def main():
     data = Trimmer_manager(
