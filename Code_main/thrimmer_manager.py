@@ -1,5 +1,6 @@
 import os
 import glob
+import subprocess
 
 
 class Trimmer_manager:
@@ -14,6 +15,7 @@ class Trimmer_manager:
 
     def run_trimmer(self):
         for file in self.file_list:
+            print("\n\n\n\n\nStart processing on file", file.filename)
             if file.file_corrupt:
                 print(f"Skipping {file.filename} as it is marked corrupt by fastqc_manager")
                 continue
@@ -21,7 +23,13 @@ class Trimmer_manager:
             output = f"{self.output_path}/{file.filename.split('.')[0]}"
             threads = self.max_threads if self.max_threads <= 8 else 8
             command = f"{self.tool_path} {file.path} -o {output} -j {threads} --path_to_cutadapt {self.cutadapt_path} -q {self.quality}"
-            os.system(command)
+            # os.system(command)
+            try:
+                process = subprocess.check_output(command, shell=True, stderr=subprocess.STDOUT)
+                process = process.decode("utf-8")
+                print(process)
+            except subprocess.CalledProcessError as e:
+                print(e.output, e.returncode)
 
             print(f"Done with file {file.filename}")
 
