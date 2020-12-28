@@ -7,6 +7,7 @@ import os
 import glob
 import sys
 import argparse
+import tarfile
 
 
 class Alignment:
@@ -25,10 +26,29 @@ class Alignment:
         """
         os.chdir(self.directory)
         for filename in os.listdir():
-            for file2 in os.listdir(filename):
-                if file2.endswith(".fq.gz") or file2.endswith(".fasta.gz"):
-                    print(f"{self.tool_path} -a {self.refseq} {filename}/{file2} > {self.output_path}/{file2.split('.')[0]}_aligned.sam")
-                    os.system(f"{self.tool_path} -a {self.refseq} {filename}/{file2} > {self.output_path}/{file2.split('.')[0]}_aligned.sam")
+            ext = ("*.fq.gz", "*.fastq.gz")
+            files = []
+            for extention in ext:
+                files.extend(glob.glob(f"{filename}/{extention}"))
+
+            if len(files) == 2:
+                os.system(f"{self.tool_path} -ax sr {self.refseq} {files[0]} {files[1]} > {self.output_path}/{filename}_aligned.sam")
+
+            elif len(files) == 0:
+                print(f"No trimmed data to allign for {filename}")
+            else:
+                os.system(f"{self.tool_path} -a {self.refseq} {files[0]} > {self.output_path}/{filename}_aligned.sam")
+
+
+            # for file2 in os.listdir(filename):
+            #     if file2.endswith(".fq.gz") or file2.endswith(".fasta.gz"):
+            #         print(f"{self.tool_path} -a {self.refseq} {filename}/{file2} > {self.output_path}/{file2.split('.')[0]}_aligned.sam")
+            #         # cwd = os.getcwd()
+            #         # print(cwd)
+            #         # print(file2)
+            #         # print(f"./{filename}/{file2}")
+            #         #os.system(f"gunzip {filename}/{file2}")
+            #         os.system(f"{self.tool_path} -a {self.refseq} {filename}/{file2} > {self.output_path}/{file2.split('.')[0]}_aligned.sam")
 
        # data = glob.glob("*.fa") + glob.glob("*.fasta")
         #data = ["fa", "fa"]
@@ -56,7 +76,7 @@ def construct_parser():
 def main():
     parser = construct_parser()
     args = parser.parse_args()
-    yes = Alignment(f"{args.outputDir}/output/trimmed_data", "/data/storix2/student/2020-2021/Thema10/tmp/tools/pipeline_tools/minimap2", "", f"{args.outputDir}/output/sam_files")
+    yes = Alignment(f"{args.outputDir}/output/trimmed_data", "/data/storix2/student/2020-2021/Thema10/tmp/tools/pipeline_tools/minimap2", "/data/storix2/student/2020-2021/Thema10/tmp/tools/test_data/reference/hg38_UCSC.fa.gz", f"{args.outputDir}/output/sam_files")
     yes.processing()
 
     return 0

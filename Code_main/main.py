@@ -9,6 +9,8 @@ import Code_main.directory_manager as directorymanager
 import Code_main.fastqc_manager as fastqc_manager
 import Code_main.thrimmer_manager as thrimmer_manager
 import Code_main.alignment as alignment
+import Code_main.Preprocessing as preprocessing
+import Code_main.mulitqc as multiqc
 import glob
 
 # Data can be found at: /data/storix2/student/2019-2020/Thema06/project-data/How_to_deal_with_difficult_data/Data"
@@ -26,7 +28,7 @@ SUBDIRS = {'fastqc': {'reports': None},
 TOOL_LOCATION = {"fastqc": "fastqc",
                  "trimgalore": "/data/storix2/student/2020-2021/Thema10/tmp/tools/pipeline_tools/TrimGalore/trim_galore",
                  "minimap2": "",
-                 "cutadapt": "/homes/sjbouwman/.local/bin/cutadapt"}
+                 "cutadapt": "/homes/kanotebomer/.local/bin/cutadapt"}
 
 
 def construct_parser():
@@ -42,6 +44,7 @@ def construct_parser():
     parser.add_argument('-t', '--trim', help='Define the last bp to keep for trimming')
     parser.add_argument('-S', '--skip', help='Skip already processed files', action="store_true", default=False)
     parser.add_argument('-q', '--quality', help='Define cut-off value for trimming', type=int, default=20)
+    parser.add_argument('-r', '--refseq', help='Reference genome to align to', type=str, required=True)
     return parser
 
 
@@ -76,11 +79,23 @@ def main():
     # print(trimmer.settings())
     trimmer.run_trimmer()
 
+    # aligner = alignment.Alignment(directory=f"{args.outputDir}/output/trimmed_data",
+    #                               tool_path=TOOL_LOCATION["minimap2"],
+    #                               refseq="",
+    #                               output_path=f"{args.outputDir}/output/sam_files")
+    # aligner.processing()
+
     aligner = alignment.Alignment(directory=f"{args.outputDir}/output/trimmed_data",
                                   tool_path=TOOL_LOCATION["minimap2"],
-                                  refseq="",
+                                  refseq=args.refseq,
                                   output_path=f"{args.outputDir}/output/sam_files")
-    # aligner.processing()
+    aligner.processing()
+
+    preprocessor = preprocessing.Preprocessing(args.outputDir)
+    preprocessor.getfile()
+
+    multiqc_manager = multiqc.Multiqc(args.outputDir)
+    multiqc_manager.run_qc()
 
     return 0
 

@@ -27,7 +27,7 @@ class Fasta_processor:
         Creates the sequence dictionary for the fasta file if it doesn't exist
         """
         if not os.path.isfile(self.dict_name):
-            os.system(f"java -jar {self.picard_path} CreateSequenceDictionary R={self.fasta} O={self.dict_name}")
+            os.system(f"PicardCommandLine CreateSequenceDictionary R={self.fasta} O={self.dict_name}")
         return 0
 
     def create_dict_name(self):

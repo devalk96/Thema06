@@ -34,8 +34,12 @@ class Trimmer_manager:
                           f"Trim Galore! Please "
                           "use Cutadapt on colorspace "
                           "files separately and check its documentation!")
+
+                    file.colorspace = True
                 else:
                     print(f"Encountered an unknown ERROR!\n", error_string)
+
+                    file.error = error_string
                 os.rmdir(output)
 
     def settings(self):

@@ -21,6 +21,9 @@ class Fastqc_file:
         self.file_corrupt = False
         self.paired = self.isPaired()
 
+        self.colorspace = False
+        self.trimmer_error = None
+
     def isPaired(self):
         """
         Checks if file is paired or not. If the identifier contains a '/' symbol, this method will return a 1 or 2.
