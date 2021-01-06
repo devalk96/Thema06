@@ -63,15 +63,6 @@ class Preprocessing:
                 os.makedirs(f"{self.data_dir}/output/{dir}")
         return 0
 
-    def count_mat(self):
-        """
-        create count matrix
-        :return:
-        """
-        os.system(featureCounts + " -a " + gtfFile + " -o " + outputDir + "RawData/counts/geneCounts.txt " + outputDir + "Preprocessing/markDuplicates/*_sorted.bam")
-
-        return 0
-
 
 def construct_parser():
     parser = argparse.ArgumentParser()

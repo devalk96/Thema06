@@ -11,6 +11,7 @@ import Code_main.thrimmer_manager as thrimmer_manager
 import Code_main.alignment as alignment
 import Code_main.Preprocessing as preprocessing
 import Code_main.mulitqc as multiqc
+import Code_main.Countmatrix as feature
 import glob
 
 # Data can be found at: /data/storix2/student/2019-2020/Thema06/project-data/How_to_deal_with_difficult_data/Data"
@@ -45,6 +46,7 @@ def construct_parser():
     parser.add_argument('-S', '--skip', help='Skip already processed files', action="store_true", default=False)
     parser.add_argument('-q', '--quality', help='Define cut-off value for trimming', type=int, default=20)
     parser.add_argument('-r', '--refseq', help='Reference genome to align to', type=str, required=True)
+    parser.add_argument('-g', '--gtf', help='Gtf file', type=str, required=True)
     return parser
 
 
@@ -93,6 +95,9 @@ def main():
 
     preprocessor = preprocessing.Preprocessing(args.outputDir)
     preprocessor.getfile()
+
+    featurecounts = feature.Featurecounts(args.outputDir, args.gtf)
+    featurecounts.make_count()
 
     multiqc_manager = multiqc.Multiqc(args.outputDir)
     multiqc_manager.run_qc()

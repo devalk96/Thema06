@@ -7,6 +7,7 @@ Script to write status
 import argparse
 import sys
 import os
+import pandas as pd
 #from fpdf import FPDF
 from pylatex import Document, Section, Subsection, Tabular, Math, TikZ, Axis, \
     Plot, Figure, Matrix, Alignat
@@ -14,34 +15,51 @@ from pylatex import Document, Section, Subsection, Tabular, Math, TikZ, Axis, \
 from zipfile import ZipFile
 
 
+class Countfile:
+    def __init__(self, filepath):
+        self.filepath = filepath
+        self.table = self.read_table()
+
+    def read_table(self):
+        table = pd.read_table(self.filepath, "\t")
+        return table
+
+
 class File_status:
-    def __init__(self, main_dir, filepath, corrupt, paired_status, colorspace, trimmer_error, low_quality):
+    def __init__(self, main_dir, filepath, corrupt, paired_status, colorspace, trimmer_error, low_quality, table):
         self.main_dir = main_dir
         self.filepath = filepath
         self.corrupt = corrupt
-        self.filename = os.path.basename(self.filepath).split(".")[0]
+        self.filename = os.path.basename(self.filepath)
+        self.filebasename = ".".join(self.filename.split(".")[:-2])
         self.is_paired = paired_status
         self.low_quality = low_quality
+        self.mito = False
+        self.colorspace = False
+        self.short_read = False
+        self.duplicate = False
+        self.low_alignment = False
 
         self.colorspace = colorspace
         self.trimmer_error = trimmer_error
 
-        status = self.get_status()
-        self.mito = status[0]
-        self.colorspace = status[1]
-        self.short_read = status[2]
-        self.duplicate = status[3]
-        self.low_alignment = status[4]
+        table = table.table
+        self.get_status(table)
+        # self.mito = status[0]
+        # self.colorspace = status[1]
+        # self.short_read = status[2]
+        # self.duplicate = status[3]
+        # self.low_alignment = status[4]
 
     def write_status(self):
         # pdf = FPDF()
         # pdf.addpage()
         # pdf.set_font("DejaVu", "B", "15")
 
-        if not os.path.exists(f"./Reports"):
-            os.makedirs("./Reports")
+        if not os.path.exists(f"{self.main_dir}/Reports"):
+            os.makedirs(f"{self.main_dir}/Reports")
 
-        doc = Document(f"./Reports/{self.filename}")
+        doc = Document(f"{self.main_dir}/Reports/{self.filename}")
 
         with doc.create(Subsection("Trimming:")):
             if self.colorspace is True:
@@ -63,6 +81,8 @@ class File_status:
             if [self.colorspace, self.trimmer_error, self.corrupt] == [False, None, False, False]:
                 doc.append("No problems encountered while trimming")
 
+        doc.generate_pdf('full', clean_text=False)
+
 
 
         # Messages
@@ -83,10 +103,14 @@ class File_status:
 
         return 0
 
-    def get_status(self):
+    def get_status(self, count_table):
+        # row = count_table.loc[count_table.loc["Gene_ID"] == self.filename]
+        # if row[""] > 40:
+        #     self.mito = True
 
-        return []
+        #Is row of column voor een sample?
 
+        return 0
 
 
 def construct_parser():
@@ -108,6 +132,8 @@ def construct_parser():
 def main():
     parser = construct_parser()
     args = parser.parse_args()
+    yes = File_status()
+    yes.write_status()
     return 0
 
 
