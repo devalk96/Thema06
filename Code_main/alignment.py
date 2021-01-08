@@ -32,12 +32,12 @@ class Alignment:
                 files.extend(glob.glob(f"{filename}/{extention}"))
 
             if len(files) == 2:
-                os.system(f"{self.tool_path} -ax sr {self.refseq} {files[0]} {files[1]} > {self.output_path}/{filename}_aligned.sam")
+                os.system(f"{self.tool_path} -ax sr {self.refseq} {files[0]} {files[1]} > {self.output_path}/{filename}.sam")
 
             elif len(files) == 0:
                 print(f"No trimmed data to allign for {filename}")
             else:
-                os.system(f"{self.tool_path} -a {self.refseq} {files[0]} > {self.output_path}/{filename}_aligned.sam")
+                os.system(f"{self.tool_path} -a {self.refseq} {files[0]} > {self.output_path}/{filename}.sam")
 
 
             # for file2 in os.listdir(filename):
@@ -60,7 +60,7 @@ class Alignment:
 def main():
     parser = construct_parser()
     args = parser.parse_args()
-    yes = Alignment(f"{args.outputDir}/output/trimmed_data", "/data/storix2/student/2020-2021/Thema10/tmp/tools/pipeline_tools/minimap2", "/data/storix2/student/2020-2021/Thema10/tmp/tools/test_data/reference/hg38_UCSC.fa.gz", f"{args.outputDir}/output/sam_files")
+    yes = Alignment(f"{args.outputDir}/output/trimmed_data", "/data/storix2/student/2020-2021/Thema10/tmp/tools/pipeline_tools/minimap2", "/data/storix2/student/2020-2021/Thema10/tmp/tools/test_data/reference/mouse/GCA_000001635.9_GRCm39_genomic.fna.gz", f"{args.outputDir}/output/sam_files")
     yes.processing()
 
     return 0

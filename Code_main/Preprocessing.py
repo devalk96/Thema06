@@ -49,14 +49,14 @@ class Preprocessing:
         os.system(f"PicardCommandLine FixMateInformation INPUT={self.data_dir}/output/addOrReplace/{filename}.sam")
         os.system(f"PicardCommandLine MergeSamFiles INPUT={self.data_dir}/output/addOrReplace/{filename}.sam OUTPUT={self.data_dir}/output/mergeSam/{filename}.sam CREATE_INDEX=true USE_THREADING=true")
         os.system(f"PicardCommandLine MarkDuplicates INPUT={self.data_dir}/output/mergeSam/{filename}.sam OUTPUT={self.data_dir}/output/markDuplicates/{filename}.sam CREATE_INDEX=true METRICS_FILE={self.data_dir}/output/markDuplicates/{filename}.metrics.log")
-        os.system(f"samtools sort -n {self.data_dir}/output/markDuplicates/{filename}.sam -o {self.data_dir}/output/markDuplicates/{filename}_sorted.sam")
+        os.system(f"samtools sort -n {self.data_dir}/output/markDuplicates/{filename}.sam -o {self.data_dir}/output/Finalmark/{filename}.sam")
 
     def mak_dir(self):
         """
         Create directories
         :return:
         """
-        dirs = ["sortedBam", "addOrReplace", "mergeSam", "markDuplicates"]
+        dirs = ["sortedBam", "addOrReplace", "mergeSam", "markDuplicates", "Finalmark"]
         for dir in dirs:
             if not os.path.exists(f"{self.data_dir}/output/{dir}"):
                 print(f"{self.data_dir}/output/{dir}")

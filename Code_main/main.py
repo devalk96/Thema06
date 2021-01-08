@@ -28,7 +28,7 @@ SUBDIRS = {'fastqc': {'reports': None},
 # Tool location
 TOOL_LOCATION = {"fastqc": "fastqc",
                  "trimgalore": "/data/storix2/student/2020-2021/Thema10/tmp/tools/pipeline_tools/TrimGalore/trim_galore",
-                 "minimap2": "",
+                 "minimap2": "/data/storix2/student/2020-2021/Thema10/tmp/tools/pipeline_tools/minimap2",
                  "cutadapt": "/homes/kanotebomer/.local/bin/cutadapt"}
 
 

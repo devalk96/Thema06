@@ -22,7 +22,10 @@ class Trimmer_manager:
 
             #basename = ".".join(file.filename.split('.')[:-2])
             basename = file.filename.split('.')[0]
-            output = f"{self.output_path}/{'_'.join(basename.split('_')[:-1])}"
+            if "_" in basename:
+                output = f"{self.output_path}/{'_'.join(basename.split('_')[:-1])}"
+            else:
+                output = f"{self.output_path}/{file.filename.split('.')[0]}"
             threads = self.max_threads if self.max_threads <= 8 else 8
             command = f"{self.tool_path} {file.path} -o {output} -j {threads} --path_to_cutadapt {self.cutadapt_path} -q {self.quality} {'--paired' if file.paired else ''} "
             try:

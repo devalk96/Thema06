@@ -18,7 +18,7 @@ class Multiqc:
         #multiqc.run(self.files)
         if not os.path.exists(f"{self.files}/MultiQC"):
             os.makedirs(f"{self.files}/MultiQC")
-        os.system(f"python3 -m multiqc -f -o {self.files}/MultiQC {self.files}")
+        os.system(f"python3 -m multiqc -f --pdf -o {self.files}/MultiQC {self.files}")
 
 
 def main():
