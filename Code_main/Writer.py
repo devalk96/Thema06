@@ -32,7 +32,8 @@ class File_status:
         self.filename = os.path.basename(self.filepath)
         self.filebasename = ".".join(self.filename.split(".")[:-2])
         if "_" in self.filebasename:
-            self.identifier = "_".join(self.filebasename.split("_")[:-1])
+            #self.identifier = "_".join(self.filebasename.split("_")[:-1])
+            self.identifier = self.filebasename.split("_")[0]
         else:
             self.identifier = self.filebasename
         #self.is_paired = paired_status

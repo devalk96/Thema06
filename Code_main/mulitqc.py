@@ -4,7 +4,7 @@
 Script to run multiqc.
 """
 
-#import multiqc
+import multiqc
 from parse_args import construct_parser
 import sys
 import os
@@ -15,10 +15,9 @@ class Multiqc:
         self.files = files
 
     def run_qc(self):
-        #multiqc.run(self.files)
         if not os.path.exists(f"{self.files}/MultiQC"):
             os.makedirs(f"{self.files}/MultiQC")
-        os.system(f"python3 -m multiqc -f --pdf -o {self.files}/MultiQC {self.files}")
+        multiqc.run(analysis_dir=self.files, outdir=f"{self.files}/MultiQC", force=True, make_pdf=True)
 
 
 def main():
