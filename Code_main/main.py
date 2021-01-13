@@ -32,8 +32,14 @@ SUBDIRS = {'fastqc': {'reports': None},
 def validate_input(parser, args, tool_location: dict):
     """
     Checks if the received user input is valid.
-    Currently only checks if the directory which contain the fastq files exists.
+    Checks if the directory which contain the fastq files exists.
+    Checks for existence of tool locations
     """
+    if not (args.fastqDir or args.files):
+        parser.error("--fastqDir OR --files are required")
+    if args.fastqDir and args.files:
+        parser.error("Please give one, --fastqDir or --files")
+
     if args.fastqDir is not None:
         if not os.path.exists(args.fastqDir):
             parser.error(f"Path to {args} not found!")
@@ -101,7 +107,6 @@ def main():
 
     multiqc_manager = multiqc.Multiqc(files=args.outputDir)
     multiqc_manager.run_qc()
-
     return 0
 
 
