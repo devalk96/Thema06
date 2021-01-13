@@ -15,6 +15,7 @@ import alignment as alignment
 import Preprocessing as preprocessing
 import mulitqc as multiqc
 import Countmatrix as feature
+import Removedirs as remove
 
 # Data can be found at: /data/storix2/student/2019-2020/Thema06/project-data/How_to_deal_with_difficult_data/Data"
 
@@ -94,6 +95,10 @@ def main():
 
     multiqc_manager = multiqc.Multiqc(files=args.outputDir)
     multiqc_manager.run_qc()
+
+    remover = remove.Remover(path=args.outputDir)
+    remover.removedirs()
+
     print("\n\nEverything is Done!")
     return 0
 
