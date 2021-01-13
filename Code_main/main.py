@@ -1,9 +1,12 @@
+#!/usr/bin/env python3
+
 """
 Main script.
 """
 
 import sys
 from parse_args import construct_parser
+import shutil
 import os
 import Code_main.directory_manager as directorymanager
 import Code_main.fastqc_manager as fastqc_manager
@@ -26,7 +29,7 @@ SUBDIRS = {'fastqc': {'reports': None},
                       'sam_files': None}}
 
 
-def validate_input(parser, args):
+def validate_input(parser, args, tool_location: dict):
     """
     Checks if the received user input is valid.
     Currently only checks if the directory which contain the fastq files exists.
@@ -35,18 +38,28 @@ def validate_input(parser, args):
         if not os.path.exists(args.fastqDir):
             parser.error(f"Path to {args} not found!")
 
+    for tool_name, tool_location in tool_location.items():
+        tool_loc = shutil.which(tool_location)
+        if not tool_loc:
+            parser.error(f"{tool_name} at path \"{tool_location}\" not found!")
+        else:
+            print(F"Tool:\t{tool_name} found at\t{tool_loc}")
+
 
 def main():
     parser = construct_parser()
     args = parser.parse_args()
-    validate_input(parser, args)
-    directorymanager.create_dirs(file_root=args.outputDir, subdirs=SUBDIRS)
 
     tool_location = {"fastqc": args.fastqc,
                      "trimgalore": args.trimgalore,
                      "minimap2": args.minimap2,
                      "cutadapt": args.cutadapt,
                      "featureCounts": args.featurecounts}
+
+    validate_input(parser, args, tool_location)
+    directorymanager.create_dirs(file_root=args.outputDir, subdirs=SUBDIRS)
+
+
 
     manager = fastqc_manager.Fastqc_manager(fastq_folder=args.fastqDir,
                                             qclist=args.files,
