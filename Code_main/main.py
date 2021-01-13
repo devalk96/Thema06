@@ -81,12 +81,6 @@ def main():
     # print(trimmer.settings())
     trimmer.run_trimmer()
 
-    # aligner = alignment.Alignment(directory=f"{args.outputDir}/output/trimmed_data",
-    #                               tool_path=TOOL_LOCATION["minimap2"],
-    #                               refseq="",
-    #                               output_path=f"{args.outputDir}/output/sam_files")
-    # aligner.processing()
-
     aligner = alignment.Alignment(directory=f"{args.outputDir}/output/trimmed_data",
                                   tool_path=tool_location["minimap2"],
                                   refseq=args.refseq,
