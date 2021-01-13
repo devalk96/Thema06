@@ -3,6 +3,7 @@ Module which handles the backend of fastqc.
 """
 
 import os
+import sys
 import glob
 import zipfile
 import gzip
@@ -45,8 +46,9 @@ class Fastqc_manager:
     Fastqc_manager is used to process the fastqc tool.
     """
 
-    def __init__(self, fastq_folder, output, tool_path, skip=True, threads=4):
+    def __init__(self, fastq_folder, qclist, output, tool_path, skip=True, threads=4):
         self.fastq_path = fastq_folder
+        self.qclist = qclist
         self.max_threads = threads
         self.skip_processed = skip
         self.output_path = output
@@ -57,10 +59,18 @@ class Fastqc_manager:
         """
         This function creates a list with fastqc_file objects.
         """
-        os.chdir(self.fastq_path)
-        filenames = glob.glob("*.gz") + glob.glob("*.fastq")  # return all files with the right extention
-        files = [f"{self.fastq_path}/{file}" for file in filenames]  # returns full path for every file
-        return [Fastqc_file(file, self.output_path) for file in files]  # construct Fastqc_file object for each file
+        if self.fastq_path is not None and self.qclist is None:
+            os.chdir(self.fastq_path)
+            filenames = glob.glob("*.gz") + glob.glob("*.fastq")  # return all files with the right extention
+            files = [f"{self.fastq_path}/{file}" for file in filenames]  # returns full path for every file
+            return [Fastqc_file(file, self.output_path) for file in files]  # construct Fastqc_file object for each file
+
+        elif self.qclist is not None and self.fastq_path is None:
+            return [Fastqc_file(file, self.output_path) for file in self.qclist]
+
+        else:
+            print("ERROR: No files")
+            sys.exit(1)
 
     def run_fastqc(self):
         """

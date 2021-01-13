@@ -3,7 +3,8 @@ import argparse
 
 def construct_parser():
     parser = argparse.ArgumentParser()
-    parser.add_argument('-d', '--fastqDir', help='Directory to the fq.gz/fastq.gz files', required=True)
+    parser.add_argument('-d', '--fastqDir', help='Directory to the fq.gz/fastq.gz files', required=False)
+    parser.add_argument('-k', '--files', nargs='+', help='Add a list of files to process', required=False)
     parser.add_argument('-o', '--organism',
                         help='Define the two letter id for the organism for the '
                              'alignment:\nHuman=hs\nMouse=mm\nMacaque=mmu\nRat=rn')

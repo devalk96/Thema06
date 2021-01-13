@@ -31,8 +31,9 @@ def validate_input(parser, args):
     Checks if the received user input is valid.
     Currently only checks if the directory which contain the fastq files exists.
     """
-    if not os.path.exists(args.fastqDir):
-        parser.error(f"Path to {args} not found!")
+    if args.fastqDir is not None:
+        if not os.path.exists(args.fastqDir):
+            parser.error(f"Path to {args} not found!")
 
 
 def main():
@@ -48,6 +49,7 @@ def main():
                      "featureCounts": args.featurecounts}
 
     manager = fastqc_manager.Fastqc_manager(fastq_folder=args.fastqDir,
+                                            qclist=args.files,
                                             output=f"{args.outputDir}/fastqc/reports",
                                             tool_path=tool_location["fastqc"],
                                             skip=args.skip,
