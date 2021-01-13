@@ -16,7 +16,6 @@ import Preprocessing as preprocessing
 import mulitqc as multiqc
 import Countmatrix as feature
 import Removedirs as remove
-import glob
 
 # Data can be found at: /data/storix2/student/2019-2020/Thema06/project-data/How_to_deal_with_difficult_data/Data"
 
