@@ -15,6 +15,7 @@ import alignment as alignment
 import Preprocessing as preprocessing
 import mulitqc as multiqc
 import Countmatrix as feature
+import Removedirs as remove
 import glob
 
 # Data can be found at: /data/storix2/student/2019-2020/Thema06/project-data/How_to_deal_with_difficult_data/Data"
@@ -61,8 +62,6 @@ def main():
     validate_input(parser, args, tool_location)
     directorymanager.create_dirs(file_root=args.outputDir, subdirs=SUBDIRS)
 
-
-
     manager = fastqc_manager.Fastqc_manager(fastq_folder=args.fastqDir,
                                             qclist=args.files,
                                             output=f"{args.outputDir}/fastqc/reports",
@@ -97,6 +96,10 @@ def main():
 
     multiqc_manager = multiqc.Multiqc(files=args.outputDir)
     multiqc_manager.run_qc()
+
+    remover = remove.Remover(path=args.outputDir)
+    remover.removedirs()
+
     print("\n\nEverything is Done!")
     return 0
 
