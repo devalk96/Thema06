@@ -6,9 +6,12 @@
 ## Usage:
 pip3 install -r requirements.txt --user
 
-For help:
-./main.py -h  
 
+For help:
+./Code_main/main.py -h
+
+OUTPUT:
+-
 usage: main.py [-h] [-d FASTQDIR] [-k FILES [FILES ...]] [-o ORGANISM]
                [-out OUTPUTDIR] [-s SEQTYPE] [-p THREADS] [-t TRIM] [-S]
                [-q QUALITY] -r REFSEQ -g GTF [-l TRIMGALORE] [-c CUTADAPT]
