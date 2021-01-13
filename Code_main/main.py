@@ -8,20 +8,16 @@ import sys
 from parse_args import construct_parser
 import shutil
 import os
-import Code_main.directory_manager as directorymanager
-import Code_main.fastqc_manager as fastqc_manager
-import Code_main.thrimmer_manager as thrimmer_manager
-import Code_main.alignment as alignment
-import Code_main.Preprocessing as preprocessing
-import Code_main.mulitqc as multiqc
-import Code_main.Countmatrix as feature
+import directory_manager as directorymanager
+import fastqc_manager as fastqc_manager
+import thrimmer_manager as thrimmer_manager
+import alignment as alignment
+import Preprocessing as preprocessing
+import mulitqc as multiqc
+import Countmatrix as feature
 import glob
 
 # Data can be found at: /data/storix2/student/2019-2020/Thema06/project-data/How_to_deal_with_difficult_data/Data"
-# default_output = "/homes/sjbouwman/Thema06"
-# example run parameters:   python3 --fastqDir /data/storix2/student/2019-2020/Thema06/project-data/How_to_deal_with_difficult_data/Data --out /homes/sjbouwman/Thema06 --threads 16
-
-# Make sure cutadapt is install --> pip3 install cutadapt --user
 
 # Nested dictionaries for creating directories
 SUBDIRS = {'fastqc': {'reports': None},
@@ -107,6 +103,7 @@ def main():
 
     multiqc_manager = multiqc.Multiqc(files=args.outputDir)
     multiqc_manager.run_qc()
+    print("\n\nEverything is Done!")
     return 0
 
 
