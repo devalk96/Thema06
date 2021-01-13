@@ -27,8 +27,7 @@ class Featurecounts:
         """
         if not os.path.exists(f"{self.outputdir}/output/countfile"):
             os.makedirs(f"{self.outputdir}/output/countfile")
-        #os.system(featureCounts + " -a " + gtfFile + " -o " + outputDir + "RawData/counts/geneCounts.txt " + outputDir + "Preprocessing/markDuplicates/*_sorted.bam")
-        #f"{self.featurcounts} -a {self.gtf} -o {self.outputdir}/output/countfile/Count_matrix.txt  {self.outputdir}/output/markDuplicates/*_sorted.bam"
+
         os.system(f"{self.toolpath} -a {self.gtf} -o {self.outputdir}/output/countfile/Count_matrix.txt  {self.outputdir}/output/Finalmark/*.sam")
         return 0
 

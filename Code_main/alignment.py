@@ -7,7 +7,6 @@ import os
 import glob
 import sys
 from parse_args import construct_parser
-import tarfile
 
 
 class Alignment:
@@ -38,23 +37,6 @@ class Alignment:
                 print(f"No trimmed data to allign for {filename}")
             else:
                 os.system(f"{self.tool_path} -a {self.refseq} {files[0]} > {self.output_path}/{filename}.sam")
-
-
-            # for file2 in os.listdir(filename):
-            #     if file2.endswith(".fq.gz") or file2.endswith(".fasta.gz"):
-            #         print(f"{self.tool_path} -a {self.refseq} {filename}/{file2} > {self.output_path}/{file2.split('.')[0]}_aligned.sam")
-            #         # cwd = os.getcwd()
-            #         # print(cwd)
-            #         # print(file2)
-            #         # print(f"./{filename}/{file2}")
-            #         #os.system(f"gunzip {filename}/{file2}")
-            #         os.system(f"{self.tool_path} -a {self.refseq} {filename}/{file2} > {self.output_path}/{file2.split('.')[0]}_aligned.sam")
-
-       # data = glob.glob("*.fa") + glob.glob("*.fasta")
-        #data = ["fa", "fa"]
-        #for file in data:
-        #    print(f"{self.tool_path} -a {self.refseq} {file} > {self.output_path}/{file.split('.')[0]}_aligned.sam")
-        #    # os.system(f"{self.tool_path} -a {self.refseq} {file} > {file.split('.')[-1]}_aligned.sam")
 
 
 def main():
