@@ -15,9 +15,10 @@ import sys
 
 
 class Featurecounts:
-    def __init__(self, outputdir, gtf):
+    def __init__(self, outputdir, gtf, toolpath):
         self.outputdir = outputdir
         self.gtf = gtf
+        self.toolpath = toolpath
 
     def make_count(self):
         """
@@ -28,7 +29,7 @@ class Featurecounts:
             os.makedirs(f"{self.outputdir}/output/countfile")
         #os.system(featureCounts + " -a " + gtfFile + " -o " + outputDir + "RawData/counts/geneCounts.txt " + outputDir + "Preprocessing/markDuplicates/*_sorted.bam")
         #f"{self.featurcounts} -a {self.gtf} -o {self.outputdir}/output/countfile/Count_matrix.txt  {self.outputdir}/output/markDuplicates/*_sorted.bam"
-        os.system(f"featureCounts -a {self.gtf} -o {self.outputdir}/output/countfile/Count_matrix.txt  {self.outputdir}/output/Finalmark/*.sam")
+        os.system(f"{self.toolpath} -a {self.gtf} -o {self.outputdir}/output/countfile/Count_matrix.txt  {self.outputdir}/output/Finalmark/*.sam")
         return 0
 
 

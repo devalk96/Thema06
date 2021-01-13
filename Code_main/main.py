@@ -25,13 +25,6 @@ SUBDIRS = {'fastqc': {'reports': None},
            'output': {'trimmed_data': None,
                       'sam_files': None}}
 
-# Tool location
-TOOL_LOCATION = {"fastqc": "fastqc",
-                 "trimgalore": "/data/storix2/student/2020-2021/Thema10/tmp/tools/pipeline_tools/TrimGalore/trim_galore",
-                 "minimap2": "/data/storix2/student/2020-2021/Thema10/tmp/tools/pipeline_tools/minimap2",
-                 "cutadapt": "/homes/kanotebomer/.local/bin/cutadapt"}
-
-
 
 def validate_input(parser, args):
     """
@@ -47,20 +40,27 @@ def main():
     args = parser.parse_args()
     validate_input(parser, args)
     directorymanager.create_dirs(file_root=args.outputDir, subdirs=SUBDIRS)
+
+    tool_location = {"fastqc": args.fastqc,
+                     "trimgalore": args.trimgalore,
+                     "minimap2": args.minimap2,
+                     "cutadapt": args.cutadapt,
+                     "featureCounts": args.featurecounts}
+
     manager = fastqc_manager.Fastqc_manager(fastq_folder=args.fastqDir,
                                             output=f"{args.outputDir}/fastqc/reports",
-                                            tool_path=TOOL_LOCATION["fastqc"],
+                                            tool_path=tool_location["fastqc"],
                                             skip=args.skip,
                                             threads=args.threads)
     # print(manager.settings())
     manager.run_fastqc()
     trimmer = thrimmer_manager.Trimmer_manager(output=f"{args.outputDir}/output/trimmed_data",
-                                               tool_path=TOOL_LOCATION["trimgalore"],
+                                               tool_path=tool_location["trimgalore"],
                                                file_list=manager.files_list,
                                                threads=args.threads,
                                                skip=args.skip,
                                                quality=args.quality,
-                                               cutadapt_path=TOOL_LOCATION["cutadapt"])
+                                               cutadapt_path=tool_location["cutadapt"])
     # print(trimmer.settings())
     trimmer.run_trimmer()
 
@@ -71,7 +71,7 @@ def main():
     # aligner.processing()
 
     aligner = alignment.Alignment(directory=f"{args.outputDir}/output/trimmed_data",
-                                  tool_path=TOOL_LOCATION["minimap2"],
+                                  tool_path=tool_location["minimap2"],
                                   refseq=args.refseq,
                                   output_path=f"{args.outputDir}/output/sam_files")
     aligner.processing()
@@ -79,10 +79,12 @@ def main():
     preprocessor = preprocessing.Preprocessing(args.outputDir)
     preprocessor.getfile()
 
-    featurecounts = feature.Featurecounts(args.outputDir, args.gtf)
+    featurecounts = feature.Featurecounts(outputdir=args.outputDir,
+                                          gtf=args.gtf,
+                                          toolpath=tool_location["featureCounts"])
     featurecounts.make_count()
 
-    multiqc_manager = multiqc.Multiqc(args.outputDir)
+    multiqc_manager = multiqc.Multiqc(files=args.outputDir)
     multiqc_manager.run_qc()
 
     return 0
