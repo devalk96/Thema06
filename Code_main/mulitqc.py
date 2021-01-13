@@ -17,7 +17,7 @@ class Multiqc:
     def run_qc(self):
         if not os.path.exists(f"{self.files}/MultiQC"):
             os.makedirs(f"{self.files}/MultiQC")
-        multiqc.run(analysis_dir=self.files, outdir=f"{self.files}/MultiQC", force=True, make_pdf=True)
+        multiqc.run(analysis_dir=self.files, outdir=f"{self.files}/MultiQC", force=True, make_pdf=True, template="default")
 
 
 def main():
