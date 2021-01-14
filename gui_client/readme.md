@@ -24,8 +24,8 @@ gui_client.py
 SSH won't work if proxy's are used, where for example multiple SSH need to be completed in order to connect to the right host. For that we recommend to setup a [ssh tunnel](https://linuxize.com/post/how-to-setup-ssh-tunneling/ "ssh tunnel") and use the SSH Connection mode to connect to localhost. 
 
 **3. Tool setup**
-Add all paths to the tools. 
-![Tool screen](https://i.imgur.com/gV0UZkb.png "Tool screen"). 
+Add all paths to the tools.   
+![Tool screen](https://i.imgur.com/Lv5vx0j.png "Tool screen"). 
 
 **4. Create job**. 
 ![Job screen](https://i.imgur.com/HVseMff.png "Job screen"). 
