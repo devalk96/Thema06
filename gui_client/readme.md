@@ -16,14 +16,14 @@ gui_client.py
 ```
 
 ## Guide
-**1. Run gui_client**
+**1. Run gui_client**. 
 ![Starting screen](https://i.imgur.com/Epryhmt.png "Starting screen"). 
 
-**2. Select your connection mode**
+**2. Select your connection mode**. 
 ![Connection mode](https://i.imgur.com/JgskLTD.png "Connection mode")  
 SSH won't work if proxy's are used, where for example multiple SSH need to be completed in order to connect to the right host. For that we recommend to setup a [ssh tunnel](https://linuxize.com/post/how-to-setup-ssh-tunneling/ "ssh tunnel") and use the SSH Connection mode to connect to localhost. 
 
-**3. Tool setup**
+**3. Tool setup**. 
 Add all paths to the tools.   
 ![Tool screen](https://i.imgur.com/Lv5vx0j.png "Tool screen"). 
 
@@ -36,7 +36,7 @@ Add all paths to the tools.
 	3. Jobs will be added to queue 
 ![Job](https://i.imgur.com/X4voQQf.png "Job")
 
-**5. View jobs**
+**5. View jobs**. 
 1. Click 'Jobs' button on the sidebar.
 - Save PDF button will appear when job is succesfully completed.
 - Logs will be available after run, to view the run parameters along the stdout and stderr.
