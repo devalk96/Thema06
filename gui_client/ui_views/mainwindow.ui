@@ -187,7 +187,7 @@
        <item>
         <widget class="QStackedWidget" name="stackedWidget_pages">
          <property name="currentIndex">
-          <number>0</number>
+          <number>1</number>
          </property>
          <widget class="QWidget" name="page_ssh">
           <layout class="QGridLayout" name="gridLayout">
@@ -552,7 +552,7 @@
                   </size>
                  </property>
                  <property name="placeholderText">
-                  <string>path to directory that contains main.py</string>
+                  <string>Path to main.py (main.py included)</string>
                  </property>
                  <property name="clearButtonEnabled">
                   <bool>true</bool>
