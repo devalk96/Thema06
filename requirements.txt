@@ -1,1 +1,7 @@
-cutadapt
+Jinja2==2.11.2
+multiqc==1.9
+pandas==1.2.0
+paramiko==2.7.2
+Pillow==8.1.0
+pylatex==1.4.1
+PyQt5==5.15.2
