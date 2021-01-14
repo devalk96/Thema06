@@ -8,6 +8,16 @@ Clone git repository
 ```bash
 git clone https://github.com/devalk96/Thema06.git
 ```
+## Dependancies
+Python 3.8+
+Further dependencies available in requirements.txt
+- Jinja2==2.11.2
+- multiqc==1.9
+- pandas==1.2.0
+- paramiko==2.7.2
+- Pillow==8.1.0
+- pylatex==1.4.1
+- PyQt5==5.15.2
 
 ## Usage
 Run gui_client.py
@@ -44,5 +54,3 @@ Add all paths to the tools.
 ## Support
 **author:** SJ Bouwman
 **Contact:** sjbouwman@st.hanze.nl
-
-
