@@ -3,7 +3,6 @@
 """
 Main script.
 """
-
 import sys
 from parse_args import construct_parser
 import shutil
@@ -59,8 +58,8 @@ def main():
                      "featureCounts": args.featurecounts}
 
     validate_input(parser, args, tool_location)
+    print(f"Source file:  {args.outputDir}")
     directorymanager.create_dirs(file_root=args.outputDir, subdirs=SUBDIRS)
-
     manager = fastqc_manager.Fastqc_manager(fastq_folder=args.fastqDir,
                                             qclist=args.files,
                                             output=f"{args.outputDir}/fastqc/reports",

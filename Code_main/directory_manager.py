@@ -7,7 +7,7 @@ DIRECTORIES = {"FASTQC": "fastqc",
 
 def create_dirs(subdirs, file_root):
     """Create dirs from nested directory"""
-    if not os.path.exists:
+    if not os.path.exists(file_root):
         os.mkdir(file_root)
     for key, val in subdirs.items():
         dir_name = os.path.join(file_root, key)

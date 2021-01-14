@@ -111,7 +111,8 @@ class Fastqc_manager:
                 with archive.open(path, "r") as stream:
                     averages, score = self._read_file(stream)
             if averages:
-                print(f"{accession_code} has no variance in quality! (score: {score})")
+                print(f"{accession_code} has no variance in quality! (score: {score})\tThis file will be marked as "
+                      f"corrupt.")
                 file.file_corrupt = averages
 
     def _read_file(self, stream_object):
