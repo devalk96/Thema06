@@ -1,0 +1,10 @@
+{
+    "pipeline": "leeg",
+    "trimgalore": "",
+    "cutadapt": "",
+    "minimap": "",
+    "fastqc": "",
+    "refseq": "",
+    "gtf": "",
+    "feature": ""
+}
