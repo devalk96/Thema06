@@ -22,7 +22,7 @@ class Trimmer_manager:
 
             #basename = ".".join(file.filename.split('.')[:-2])
             basename = file.filename.split('.')[0]
-            if "_" in basename:
+            if "_" in basename and file.paired is not False:
                 #output = f"{self.output_path}/{'_'.join(basename.split('_')[:-1])}"
                 output = f"{self.output_path}/{basename.split('_')[0]}"
             else:
