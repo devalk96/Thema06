@@ -45,18 +45,27 @@ etc..
 
 **4. Create job**.   
 ![Job screen](https://i.imgur.com/HVseMff.png "Job screen"). 
--  Optimum amount of threads is 8. More won't make the pipeline faster
-- Output path should be on the machine the script is run form. 
+- Optimum amount of threads is 8 (More won't make the pipeline necessarily faster.).
+- Output path should be on the machine the script is run from. 
 	1. Add files using the 'Add files' button
 	2. Then press RUN pipeline
 	3. Jobs will be added to queue 
+	    - Note: Jobs will be completed one at a time.
+	    - There is (currently) no ability to remove jobs which are in queue.
+	    - If GUI is (un)expectedly closed, all current jobs and jobs in queue will be dropped.
+	    The current running job will still be completed and can be found at the provided output path 
+	    when the script is completed.
+	    - Restarting GUI (currently) won't load previous jobs. 
+	    As completed files are saved in session.
+	    
 ![Job](https://i.imgur.com/X4voQQf.png "Job")
 
 **5. View jobs**. 
 1. Click 'Jobs' button on the sidebar.
 - Save PDF button will appear when job is succesfully completed.
-- Logs will be available after run, to view the run parameters along the stdout and stderr.
+- Logs button will be available after run is completed, this provided the ability to view the run 
+parameters along the stdout and stderr.
 
 ## Support
-**author:** SJ Bouwman
+**author:** Groep B (Sjbouwman)
 **Contact:** sjbouwman@st.hanze.nl
