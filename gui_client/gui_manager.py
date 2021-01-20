@@ -1,24 +1,25 @@
 #!/usr/bin/env python3
-from PyQt5 import QtWidgets, uic
-from PyQt5.QtCore import QThreadPool, QRunnable, pyqtSlot
-from PyQt5.QtGui import QIcon
-from PyQt5.QtWidgets import QFileDialog, QPushButton, QLabel, QGroupBox, QWidget, QHBoxLayout, QScrollArea, \
-    QMessageBox, QInputDialog
-
 import sys
 import random
-
-from jinja2 import Environment, FileSystemLoader
-
-from ssh_connection import Session
 import os
 import json
 import time
 import subprocess
-from subprocess import PIPE
 import string
 import datetime
 from shutil import copy2
+from typing import Optional
+
+from PyQt5 import QtWidgets, uic
+from PyQt5.QtCore import QThreadPool, QRunnable, pyqtSlot, QObject
+from PyQt5.QtGui import QIcon
+from PyQt5.QtWidgets import QFileDialog, QPushButton, QLabel, QGroupBox, QWidget, QHBoxLayout, QScrollArea, \
+    QMessageBox, QInputDialog
+
+from jinja2 import Environment, FileSystemLoader, Template
+
+from ssh_connection import Session
+
 
 class Worker_local(QRunnable):
     '''
@@ -29,20 +30,21 @@ class Worker_local(QRunnable):
     def __init__(self, session_ssh, queue_label):
         super(Worker_local, self).__init__()
         self.session = session_ssh
-        self.queue = {}
-        self.queue_label = queue_label
+        self.queue: dict = {}
+        self.queue_label: QObject = queue_label
 
     @pyqtSlot()
     def run(self):
         '''
-        Queue function
+        Queue function that checks for jobs every n seconds
         '''
+        seconds_between_checks: int = 1
         while True:
-            time.sleep(1)
+            time.sleep(seconds_between_checks)
             self.update_label_queue()
             if self.queue:
-                jobs_this_itteration = []
-                queue_copy = dict.copy(self.queue)
+                jobs_this_itteration: list[dict] = []
+                queue_copy: dict = dict.copy(self.queue)
                 for job in queue_copy:
                     jobs_this_itteration.append(job)
                     self.process_job(job_id=job, data=queue_copy[job])
@@ -50,59 +52,58 @@ class Worker_local(QRunnable):
                 for job in jobs_this_itteration:
                     self.queue.pop(job)
 
-    def add_job(self, job_id, data):
+    def add_job(self, job_id: str, data: dict):
+        """
+        Add a job to the current queue
+        """
         self.queue[job_id] = data
 
     def update_label_queue(self):
+        """
+        Change the text of the label queue_label
+        """
         self.queue_label.setText(str(len(self.queue)))
 
-    def process_job(self, job_id, data):
-
+    def process_job(self, job_id: str, data: dict):
+        """
+        Processes a job from the queue.
+        """
         # Basic param
-        job_id = job_id
-        output = data["output"] + "/" + job_id
-        filenames = data["filenames"]
-        widget_obj = data["widget"]
-        mode = data["mode"]
-        jobname = data["jobname"]
-        tools = data["tools"]
-        threads = data["threads"]
-        skip = data["skip"]
-        console = data["console"]
+        job_id: str = job_id
+        output: str = data["output"] + "/" + job_id
+        filenames: str = data["filenames"]
+        widget_obj: QObject = data["widget"]
+        mode: bool = data["mode"]
+        tools: dict = data["tools"]
+        threads: int = data["threads"]
+        console: QObject = data["console"]
 
         # Get tools
-        pipeline = tools["pipeline"]
-        refseq = tools["refseq"]
-        gtf = tools["gtf"]
-        trimgalore = tools["trimgalore"]
-        cutadapt = tools["cutadapt"]
-        minimap = tools["minimap"]
-        fastqc = tools["fastqc"]
-        featurecounts = tools["feature"]
-
-        # data = {'pipeline': self.lineEdit_pipeline_script_path.text(),
-        #         'trimgalore': self.lineEdit_trimgalore_path.text(),
-        #         'cutadapt': self.lineEdit_cutadapt_path.text(),
-        #         'minimap': self.lineEdit_minimap_path.text(),
-        #         'fastqc': self.lineEdit_fastqc_path.text(),
-        #         'refseq': self.lineEdit_refseq.text(),
-        #         'gtf': self.lineEdit_gtf_path.text()}
+        pipeline: str = tools["pipeline"]
+        refseq: str = tools["refseq"]
+        gtf: str = tools["gtf"]
+        trimgalore: str = tools["trimgalore"]
+        cutadapt: str = tools["cutadapt"]
+        minimap: str = tools["minimap"]
+        fastqc: str = tools["fastqc"]
+        featurecounts: str = tools["feature"]
 
         # Select GUI compontents
-        groupbox = widget_obj.findChild(QScrollArea).findChild(QGroupBox, job_id)
-        file_status_label = widget_obj.findChild(QScrollArea).findChild(QGroupBox, job_id).findChild(QLabel,
-                                                                                                     "file_status")
-        save_button = widget_obj.findChild(QScrollArea).findChild(QGroupBox, job_id).findChild(QPushButton, "save_file")
-        log_button = widget_obj.findChild(QScrollArea).findChild(QGroupBox, job_id).findChild(QPushButton, "get_error")
-        current_job_nr = widget_obj.findChild(QLabel, "label_active_jobs_nr")
-        failed_job = widget_obj.findChild(QLabel, "label_failed_nr")
+        groupbox: QObject = widget_obj.findChild(QScrollArea).findChild(QGroupBox, job_id)
+        file_status_label: QObject = widget_obj.findChild(QScrollArea).findChild(QGroupBox, job_id).findChild(QLabel,
+                                                                                                              "file_status")
+        save_button: QObject = widget_obj.findChild(QScrollArea).findChild(QGroupBox, job_id).findChild(QPushButton,
+                                                                                                        "save_file")
+        log_button: QObject = widget_obj.findChild(QScrollArea).findChild(QGroupBox, job_id).findChild(QPushButton,
+                                                                                                       "get_error")
+        current_job_nr: QObject = widget_obj.findChild(QLabel, "label_active_jobs_nr")
+        failed_job: QObject = widget_obj.findChild(QLabel, "label_failed_nr")
 
         # file_status
         file_status_label.setText("In progress...")
 
         # Create string
-        command = f"python3 {pipeline} --files {' '.join(filenames)} --out {output} --threads {threads} --refseq {refseq} --gtf {gtf} --trimgalore {trimgalore} --cutadapt {cutadapt} --minimap2 {minimap} --fastqc {fastqc} --featurecounts {featurecounts}"
-
+        command: str = f"python3 {pipeline} --files {' '.join(filenames)} --out {output} --threads {threads} --refseq {refseq} --gtf {gtf} --trimgalore {trimgalore} --cutadapt {cutadapt} --minimap2 {minimap} --fastqc {fastqc} --featurecounts {featurecounts}"
 
         if mode:
             stdout, stderr = run_local_script(command=command, label=file_status_label, console=console)
@@ -110,7 +111,8 @@ class Worker_local(QRunnable):
             groupbox.stderr = stderr
         else:
             # Run tool trough ssh
-            stdin, stdout, stderr = run_ssh_script(self.session, command=command,label=file_status_label, console=console)
+            stdin, stdout, stderr = run_ssh_script(self.session, command=command, label=file_status_label,
+                                                   console=console)
 
         # Redeclare values
         groupbox.stdout = stdout
@@ -140,33 +142,39 @@ class Worker_local(QRunnable):
         log_button.setHidden(False)
 
 
-def run_local_script(command, label, console):
+def run_local_script(command: str, label: QObject, console: QObject) -> tuple[list[str], str]:
+    """
+    Runs a command on local machine. and checks stdin, stout and sterr constantly
+    """
     process = subprocess.Popen(command, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
-    list_stdout = []
+    list_stdout: list = []
     while True:
-        output = process.stdout.readline()
+        output: bytes = process.stdout.readline()
         if process.poll() is not None:
             break
         if output:
-            line = output.strip().decode('utf-8')
+            line: str = output.strip().decode('utf-8')
             console.append(line)
             list_stdout.append(line + "\n")
-    stdout = process.stdout.read().decode("utf-8")
-    stderr = process.stderr.read().decode("utf-8")
+    stdout: str = process.stdout.read().decode("utf-8")
+    stderr: str = process.stderr.read().decode("utf-8")
     return list_stdout, stderr
 
 
-def run_ssh_script(session, command, label, console):
+def run_ssh_script(session: Session, command: str, label: QObject, console: QObject) -> tuple[
+    str, list[str], list[str]]:
+    """
+    Runs a command on the ssh machine. Checks constantly for stdout, stdout, sdterr change.
+    """
     stdin, stdout, stderr = session.client.exec_command(command, get_pty=True)
-    list_stdout = []
-    list_stderr = []
+    list_stdout: list = []
+    list_stderr: list = []
     while not stdout.channel.exit_status_ready():
         for line in iter(lambda: stdout.readline(2048), ""):
             console.append(line)
             list_stdout.append(line)
         for line in iter(lambda: stderr.readline(2048), ""):
             list_stderr.append(line)
-
     if stdout.channel.recv_exit_status() != 0:
         list_stderr.append("See Stdout for error")
     for f in [stdin, stdout, stderr]:
@@ -174,52 +182,54 @@ def run_ssh_script(session, command, label, console):
     return stdin, list_stdout, list_stderr
 
 
-def line_buffered(f):
-    line_buf = ""
-    while not f.channel.exit_status_ready():
-        line_buf += str(f.read(1))
-        if line_buf.endswith('\n'):
-            yield line_buf
-            line_buf = ''
-
-
 class LogWindow(QtWidgets.QDialog):
+    """A dialog that is created for every job. This uses a html template to populate the log"""
+
     def __init__(self):
         super(LogWindow, self).__init__()
         uic.loadUi("ui_views/logwindow.ui", self)
         self.pushButton_close.clicked.connect(lambda: self.close())
 
-    def generate_log(self, data):
-        env = Environment(loader=FileSystemLoader("ui_views/resources"))
-        template = env.get_template('log_template.html')
-        output_from_parsed_template = template.render(data=data,
-                                                      timestamp=datetime.datetime.now().strftime("%d-%B-%y at %T"))
-        data = [output_from_parsed_template]
-        return data
+    def generate_log(self, data: dict) -> list:
+        """Generates the log from template and from the provided data"""
+        env: Environment = Environment(loader=FileSystemLoader("ui_views/resources"))
+        template: Template = env.get_template('log_template.html')
+        output_from_parsed_template: bytes = template.render(data=data,
+                                                             timestamp=datetime.datetime.now().strftime(
+                                                                 "%d-%B-%y at %T"))
+        return [output_from_parsed_template]
 
-    def print_to_browser(self, data):
+    def print_to_browser(self, data: list):
         for line in data:
             self.textBrowser.append(line)
         self.exec()
 
 
+def _generate_job_id():
+    """Generates a random string containing 20 characters"""
+    pool: list[str] = string.ascii_uppercase + string.digits
+    return "".join(random.sample(pool, 20))
+
+
 class MainWindow(QtWidgets.QMainWindow):
+    """Main class that contains all object to generate the GUI"""
+
     def __init__(self):
         super(MainWindow, self).__init__()  # Call the inherited classes __init__ method
         uic.loadUi("ui_views/mainwindow.ui", self)
 
         # Default values:
-        self.mode_isLocal = False
-        self.session = Session()
-        self.file_list = []
+        self.mode_isLocal: bool = False
+        self.session: Session = Session()
+        self.file_list: list = []
 
-        self.active_jobs = 0
-        self.current_jobs = 0
-        self.failed_jobs = 0
+        self.active_jobs: int = 0
+        self.current_jobs: int = 0
+        self.failed_jobs: int = 0
 
         # Start subprocess
-        self.threadpool = QThreadPool()
-        self.worker = Worker_local(session_ssh=self.session, queue_label=self.label_active_jobs_nr)
+        self.threadpool: QThreadPool = QThreadPool()
+        self.worker: Worker_local = Worker_local(session_ssh=self.session, queue_label=self.label_active_jobs_nr)
         self.threadpool.start(self.worker)
         # Load defaults:
         self.set_default_ssh()
@@ -263,12 +273,12 @@ class MainWindow(QtWidgets.QMainWindow):
     def update_mode(self):
         """Set mode to local or ssh"""
         if self.radioButton_mode_local.isChecked() and not self.radioButton_mode_ssh.isChecked():
-            self.mode_isLocal = True
+            self.mode_isLocal: bool = True
             self.set_default_run()
             self.set_default_tools()
             return True
         else:
-            self.mode_isLocal = False
+            self.mode_isLocal: bool = False
             self.set_default_run()
             self.set_default_tools()
             return False
@@ -279,21 +289,21 @@ class MainWindow(QtWidgets.QMainWindow):
 
     def get_files(self):
         """Get (fasta) files"""
-        files = None
         self.update_mode()
+        files: list = []
         if self.mode_isLocal:
-            files = self.openFileNamesDialog()
+            files: list[str] = self.openFileNamesDialog()
 
         else:
             self.clear_files_ssh()
-            files = self.get_files_ssh()
+            self.get_files_ssh()
 
         if files:
             for file in files:
                 self.file_list.append(file)
                 self._populate_file_list(file)
 
-    def openFileNamesDialog(self, defaultdir="/"):
+    def openFileNamesDialog(self, defaultdir="/") -> Optional[list[str]]:
         """Opens a filenames dialog"""
         files, _ = QFileDialog.getOpenFileNames(None, 'Open file(s)', defaultdir,
                                                 "Fasta file (*.fasta *.fastq);;all files(*.*)")
@@ -315,7 +325,7 @@ class MainWindow(QtWidgets.QMainWindow):
             self._populate_file_list(file)
         self.change_view(2)
 
-    def get_fields_ssh(self, password=True):
+    def get_fields_ssh(self, password=True) -> dict[str, str]:
         """
         Gets all values from the lineEdit classes from ssh page.
         :param password: if False, changes string with password to empty string
@@ -328,7 +338,7 @@ class MainWindow(QtWidgets.QMainWindow):
                         self.label_password.text(): self.lineEdit_password.text() if password else ''}
         return field_values
 
-    def get_fields_tools(self):
+    def get_fields_tools(self) -> dict[str, str]:
         """
         Gets all values from the lineEdit classes from tools page.
         :return: data as dict
@@ -343,7 +353,7 @@ class MainWindow(QtWidgets.QMainWindow):
                 'feature': self.lineEdit_feature.text()}
         return data
 
-    def get_fields_run(self):
+    def get_fields_run(self) -> dict[str, str]:
         """
         Gets all values from the lineEdit classes from run page.
         :return: data as dict
@@ -357,7 +367,7 @@ class MainWindow(QtWidgets.QMainWindow):
         """
         Sets up a ssh connection
         """
-        fields = self.get_fields_ssh()
+        fields: dict[str, str] = self.get_fields_ssh()
         try:
             self.session.client.load_system_host_keys()
             self.session.client.connect(hostname=fields[self.label_hostname.text()],
@@ -384,7 +394,7 @@ class MainWindow(QtWidgets.QMainWindow):
 
     def set_default_ssh(self):
         """Changes the text in ssh page to saved strings"""
-        data = load_default("saved_data/default_ssh.json")
+        data: dict[str, str] = load_default("saved_data/default_ssh.json")
         if data:
             self.lineEdit_host.setText(data[self.label_hostname.text()])
             self.lineEdit_username.setText(data[self.label_username.text()])
@@ -395,9 +405,9 @@ class MainWindow(QtWidgets.QMainWindow):
     def set_default_tools(self):
         """Changes the text in tools page to saved strings"""
         if self.mode_isLocal:
-            data = load_default("saved_data/default_tools_local.json")
+            data: dict[str, str] = load_default("saved_data/default_tools_local.json")
         else:
-            data = load_default("saved_data/default_tools_ssh.json")
+            data: dict[str, str] = load_default("saved_data/default_tools_ssh.json")
         if data:
             self.lineEdit_pipeline_script_path.setText(data['pipeline'])
             self.lineEdit_trimgalore_path.setText(data['trimgalore'])
@@ -411,9 +421,9 @@ class MainWindow(QtWidgets.QMainWindow):
     def set_default_run(self):
         """Changes the text in run page to saved strings"""
         if self.mode_isLocal:
-            data = load_default("saved_data/default_run_local.json")
+            data: dict[str, str] = load_default("saved_data/default_run_local.json")
         else:
-            data = load_default("saved_data/default_run_ssh.json")
+            data: dict[str, str] = load_default("saved_data/default_run_ssh.json")
         if data:
             self.spinBox_threads.setValue(data[self.label_threads.text()])
             self.checkBox_skip_files.setChecked(bool(self.label_skip.text()))
@@ -430,10 +440,10 @@ class MainWindow(QtWidgets.QMainWindow):
 
     def ssh_file_selector(self):
         """Function that handles the file selection if SSH protocol is used"""
-        path = self.lineEdit_file_path_ssh.text()
-        filenames_filtered = []
+        path: str = self.lineEdit_file_path_ssh.text()
+        filenames_filtered: list = []
         if path:
-            filenames = self.session.probe_dir(path)
+            filenames: list[str] = self.session.probe_dir(path)
 
             if filenames:
                 for name in filenames:
@@ -444,7 +454,7 @@ class MainWindow(QtWidgets.QMainWindow):
                 filenames_filtered = [os.path.join(path, x) for x in filenames_filtered]
                 self._populate_file_ssh_left(files=filenames_filtered)
             else:
-                found = "Files / folders found:\n"
+                found: str = "Files / folders found:\n"
                 if type(filenames) == list:
                     found += "\n".join(filenames)
                 elif type(filenames) == str:
@@ -458,25 +468,35 @@ class MainWindow(QtWidgets.QMainWindow):
     # Populate file list. Underlying functions create new widgets.
     def _populate_file_list(self, file):
         """Creates individual file objects in the files widgets on the run page"""
-        filename = file.split("/")[-1]
-        file_label = QLabel(filename)
-        delete_btn = QPushButton("Remove")
+        filename: str = file.split("/")[-1]
+        file_label: QObject = QLabel(filename)
+
+        # Create delete button
+        delete_btn: QObject = QPushButton("Remove")
         delete_btn.setIcon(QIcon('ui_views/resources/delete.png'))
         delete_btn.setMinimumWidth(20)
         delete_btn.setMaximumWidth(100)
         delete_btn.setFlat(False)
         delete_btn.setObjectName(file)
         delete_btn.clicked.connect(lambda: self.delete_file(self.sender()))
-        file_box = QGroupBox()
+
+        # Create file box
+        file_box: QObject = QGroupBox()
         file_box.setObjectName(file)
         file_box.setMaximumHeight(25)
-        layout_file_box = QHBoxLayout(file_box)
+
+        # Create layout box
+        layout_file_box: QObject = QHBoxLayout(file_box)
         layout_file_box.addWidget(file_label)
         layout_file_box.addWidget(delete_btn)
         layout_file_box.setContentsMargins(0, 0, 0, 0)
-        group = QtWidgets.QGroupBox(self.scrollAreaWidgetContents)
+
+        # Create Groupbox
+        group: QObject = QtWidgets.QGroupBox(self.scrollAreaWidgetContents)
         group.setObjectName(file)
         group.setLayout(layout_file_box)
+
+        # Assign layouts
         self.verticalLayout_files.addWidget(group)
         self.label_files.setHidden(True)
 
@@ -485,53 +505,79 @@ class MainWindow(QtWidgets.QMainWindow):
         for file in files:
             filename = file.split("/")[-1]
             file_label = QLabel(filename)
-            move_btn = QPushButton()
+
+            # Create move button
+            move_btn: QObject = QPushButton()
             move_btn.setIcon(QIcon('ui_views/resources/arrow_right.svg'))
             move_btn.setMinimumWidth(20)
             move_btn.setMaximumWidth(20)
             move_btn.setFlat(True)
             move_btn.setObjectName(file)
             move_btn.clicked.connect(lambda: self._populate_file_ssh_right(self.sender()))
-            file_box = QGroupBox()
+
+            # Create file box
+            file_box: QObject = QGroupBox()
             file_box.setObjectName(file)
+
+            # Create layout box
             layout_file_box = QHBoxLayout(file_box)
             layout_file_box.addWidget(file_label)
             layout_file_box.addWidget(move_btn)
+
+            # Create groupbox
             group = QtWidgets.QGroupBox(self.scrollAreaWidgetContents_left)
             group.setObjectName(file)
             group.setLayout(layout_file_box)
+
+            # Assign layout
             self.verticalLayout_left_ssh.addWidget(group)
             self.label_ssh_left.setHidden(True)
 
-    def _populate_file_ssh_right(self, sender):
+    def _populate_file_ssh_right(self, sender: QObject.sender):
         """Creates individual file objects in the right column on the SSH file selector page"""
+
+        # Delete file from the right file list
         self.delete_file(sender)
         sender.parent().setHidden(True)
         sender.parent().deleteLater()
-        file = sender.objectName()
-        filename = file.split("/")[-1]
-        file_label = QLabel(filename)
-        move_btn = QPushButton()
+
+        # Get parameters
+        file: str = sender.objectName()
+        filename: str = file.split("/")[-1]
+        file_label: QObject = QLabel(filename)
+
+        # Create move button
+        move_btn: QObject = QPushButton()
         move_btn.setIcon(QIcon('ui_views/resources/delete.png'))
         move_btn.setMinimumWidth(20)
         move_btn.setMaximumWidth(20)
         move_btn.setFlat(True)
         move_btn.setObjectName(file)
         move_btn.clicked.connect(lambda: self.delete_file(self.sender()))
-        file_box = QGroupBox()
+
+        # Create file box
+        file_box: QObject = QGroupBox()
         file_box.setObjectName(file)
-        layout_file_box = QHBoxLayout(file_box)
+
+        # Create layout
+        layout_file_box: QObject = QHBoxLayout(file_box)
         layout_file_box.addWidget(file_label)
         layout_file_box.addWidget(move_btn)
-        group = QtWidgets.QGroupBox(self.scrollAreaWidgetContents_right)
+
+        # Create groupbox
+        group: QObject = QtWidgets.QGroupBox(self.scrollAreaWidgetContents_right)
         group.setObjectName(file)
         group.setLayout(layout_file_box)
+
+        # Set layouts
         self.verticalLayout_ssh_right.addWidget(group)
         self.label_ssh_right.setHidden(True)
         self.file_list.append(file)
 
     def delete_file(self, sender):
         """Remove file from list"""
+
+        # Delete parent Qobject
         sender.parent().setHidden(True)
         sender.parent().deleteLater()
         try:
@@ -543,19 +589,15 @@ class MainWindow(QtWidgets.QMainWindow):
 
     def clear_files_ssh(self):
         """Deletes all labels + buttons for filenames"""
-        data = self.findChild(QWidget, 'scrollAreaWidgetContents_right').findChildren(QGroupBox)
+        data: list[QObject] = self.findChild(QWidget, 'scrollAreaWidgetContents_right').findChildren(QGroupBox)
         data += self.findChild(QWidget, 'scrollAreaWidgetContents_left').findChildren(QGroupBox)
         if data:
             for file in data:
                 file.deleteLater()
-
                 file.parent().findChild(QLabel).setHidden(False)
 
-    def _generate_job_id(self):
-        pool = string.ascii_uppercase + string.digits
-        return "".join(random.sample(pool, 20))
-
-    def gettext(self):
+    def gettext(self) -> Optional[str]:
+        """Creates a Inputdialog and asks for a jobname"""
         text, ok = QInputDialog.getText(self, 'Job name', 'Enter a job name:')
         if ok:
             if text == "":
@@ -567,10 +609,10 @@ class MainWindow(QtWidgets.QMainWindow):
             return None
 
     def run_pipe(self):
-        files = self.file_list
-        output = self.lineEdit_pipeline_output.text()
-        job_id = self._generate_job_id()
-        jobname = self.gettext()
+        files: list[str] = self.file_list
+        output: str = self.lineEdit_pipeline_output.text()
+        job_id: str = _generate_job_id()
+        jobname: str = self.gettext()
 
         # Check if all prerequisites are fulfilled
         if not jobname or not files or not output:
@@ -584,7 +626,8 @@ class MainWindow(QtWidgets.QMainWindow):
             self.change_view(4)
             widget = self.findChild(QGroupBox, 'groupBox_jobs')
             self.add_job(job_id=job_id, jobname=jobname, output=output, filenames=files, widget=widget,
-                         mode=self.mode_isLocal, tools=self.get_fields_tools(), threads=self.spinBox_threads.value(), skip=self.checkBox_skip_files.isChecked())
+                         mode=self.mode_isLocal, tools=self.get_fields_tools(), threads=self.spinBox_threads.value(),
+                         skip=self.checkBox_skip_files.isChecked())
         else:
             create_message_box(msg_type="warning", text="Can't start job!",
                                informative="not all prerequisistes are fullfilled. Check details for more info.",
@@ -592,32 +635,36 @@ class MainWindow(QtWidgets.QMainWindow):
                                        f"provided: {bool(files)}")
 
     def add_job(self, job_id, jobname, output, filenames, widget, mode, tools, threads, skip):
-        data = {"output": output, "filenames": filenames, "widget": widget, "mode": mode, "jobname": jobname,
-                "job_id": job_id, "tools": tools, "threads": threads, "skip": skip, "console": self.textBrowser_console}
+        """Gets parameters and runs the add_job method from Worker class"""
+        data: dict = {"output": output, "filenames": filenames, "widget": widget, "mode": mode,
+                      "jobname": jobname,
+                      "job_id": job_id, "tools": tools, "threads": threads, "skip": skip,
+                      "console": self.textBrowser_console}
         self.worker.add_job(job_id=job_id, data=data)
 
     def create_job_widget(self, jobname, job_id):
+        """Creates a new widget which will be added to the job area"""
         # Create label
-        file_label = QLabel(f"Name: {jobname}")
-        file_label_status = QLabel("In queue...")
+        file_label: QObject = QLabel(f"Name: {jobname}")
+        file_label_status: QObject = QLabel("In queue...")
         file_label_status.setObjectName("file_status")
         file_label_status.setMaximumHeight(25)
 
         # Create button get file
-        btn_get_file = QPushButton("Save report (PDF)")
+        btn_get_file: QObject = QPushButton("Save report (PDF)")
         btn_get_file.setObjectName("save_file")
         btn_get_file.setHidden(True)
         btn_get_file.clicked.connect(lambda: self.save_finished_file(self.sender()))
 
         # Create button get log
-        btn_log = QPushButton("Get log")
+        btn_log: QObject = QPushButton("Get log")
         btn_log.setObjectName("get_error")
         btn_log.setMaximumWidth(100)
         btn_log.setHidden(True)
         btn_log.clicked.connect(lambda: self.open_log_dialog(self.sender()))
 
         # Create groupbox
-        file_box = QGroupBox()
+        file_box: QObject = QGroupBox()
         file_box.setObjectName(job_id)
         file_box.setMaximumHeight(25)
 
@@ -630,7 +677,7 @@ class MainWindow(QtWidgets.QMainWindow):
         file_box.success = None
 
         # Add widgets
-        layout_file_box = QHBoxLayout(file_box)
+        layout_file_box: QObject = QHBoxLayout(file_box)
         layout_file_box.addWidget(file_label)
         layout_file_box.addWidget(file_label_status)
         layout_file_box.addWidget(btn_get_file)
@@ -640,13 +687,16 @@ class MainWindow(QtWidgets.QMainWindow):
         layout_file_box.setContentsMargins(0, 0, 0, 0)
 
         # Create Qgroupbox
-        group = QtWidgets.QGroupBox(self.scrollAreaWidgetContents_2)
+        group: QObject = QtWidgets.QGroupBox(self.scrollAreaWidgetContents_2)
         group.setObjectName(job_id)
         group.setLayout(layout_file_box)
         group.log = LogWindow()
+
+        # Set layout
         self.verticalLayout_jobs.addWidget(group)
 
-    def saveFileDialog(self, filename="output.pdf"):
+    def saveFileDialog(self, filename="output.pdf") -> Optional[str]:
+        """Create a new popup save dialog"""
         defaultdir = f"/{filename}"
         files, _ = QFileDialog.getSaveFileName(None, 'Save file', defaultdir,
                                                "PDF file(*.pdf);;all files(*.*)")
@@ -655,10 +705,10 @@ class MainWindow(QtWidgets.QMainWindow):
         return None
 
     def save_finished_file(self, sender):
-        groupbox = sender.parent()
+        groupbox: QObject.sender = sender.parent()
 
-        save_location = self.saveFileDialog(filename=groupbox.jobname)
-        remote_path = f"{groupbox.run_output}/MultiQC/multiqc_report.pdf"
+        save_location: str = self.saveFileDialog(filename=groupbox.jobname)
+        remote_path: str = f"{groupbox.run_output}/MultiQC/multiqc_report.pdf"
         if groupbox.run_mode:
             try:
                 print("Local")
@@ -678,13 +728,13 @@ class MainWindow(QtWidgets.QMainWindow):
                                                f"File can also be found on host at: {remote_path}", details=str(e))
 
     def open_log_dialog(self, sender):
-        fullpath = sender.parent().objectName()
-        basename = os.path.basename(fullpath)
-        stdout = sender.parent().stdout
-        error = sender.parent().stderr
-        groupbox = sender.parent()
-        log = sender.parent().log
-        data = log.generate_log(groupbox.data)
+        fullpath: str = sender.parent().objectName()
+        basename: str = os.path.basename(fullpath)
+        stdout: str = sender.parent().stdout
+        error: str = sender.parent().stderr
+        groupbox: QObject = sender.parent()
+        log: QObject = sender.parent().log
+        data: dict = log.generate_log(groupbox.data)
         log.print_to_browser(data)
 
 
@@ -701,7 +751,7 @@ def set_default(path, data):
         stream.write(json.dumps(data, indent=4))
 
 
-def load_default(path):
+def load_default(path: str) -> dict:
     """
     Opens json file and returns as dicts
     :param path: path of json file
@@ -709,7 +759,7 @@ def load_default(path):
     """
     if os.path.exists(path):
         with open(path, "r") as stream:
-            data = json.load(stream)
+            data: dict = json.load(stream)
         return data
 
 
@@ -723,11 +773,11 @@ def create_message_box(text="no text provided", informative=None, title="popup",
     :param msg_type: str that determens the displayed icon
     :return: noting
     """
-    msg = QMessageBox()
-    icon = {"info": QMessageBox.Information,
-            "warning": QMessageBox.Warning,
-            "critical": QMessageBox.Critical,
-            "question": QMessageBox.Question}
+    msg: QObject = QMessageBox()
+    icon: dict[str, QMessageBox.icon] = {"info": QMessageBox.Information,
+                                         "warning": QMessageBox.Warning,
+                                         "critical": QMessageBox.Critical,
+                                         "question": QMessageBox.Question}
     msg.setIcon(icon[msg_type])
     msg.setWindowTitle(title)
     msg.setText(text)
@@ -739,7 +789,6 @@ def create_message_box(text="no text provided", informative=None, title="popup",
 
 
 if __name__ == '__main__':
-    app = QtWidgets.QApplication(sys.argv)  # Create an instance of QtWidgets.QApplication
-    main_window = MainWindow()  # Create an instance of our class
-    # login_window = LoginWindow()
+    app: QtWidgets.QApplication = QtWidgets.QApplication(sys.argv)  # Create an instance of QtWidgets.QApplication
+    main_window: MainWindow = MainWindow()
     app.exec_()  # Start the application
