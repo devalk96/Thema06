@@ -1,5 +1,5 @@
-# Thema06_GUI
-Gui_client is a Python module used in combination with the pipline.
+# Thema06_GUI GUIDE/README
+Gui_client is a Python module used in combination with the pipeline.
 
 ## Installation
 

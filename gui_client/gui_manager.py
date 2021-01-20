@@ -15,6 +15,7 @@ import string
 import subprocess
 import sys
 import time
+import webbrowser
 from shutil import copy2
 from typing import Optional
 
@@ -274,6 +275,8 @@ class MainWindow(QtWidgets.QMainWindow):
         self.current_jobs: int = 0
         self.failed_jobs: int = 0
 
+        self.guide_link: str = "https://github.com/devalk96/Thema06/tree/main/gui_client"
+
         # Start subprocess
         self.threadpool: QThreadPool = QThreadPool()
         self.worker: Worker = Worker(session_ssh=self.session,
@@ -295,6 +298,7 @@ class MainWindow(QtWidgets.QMainWindow):
 
         self.pushButton_nav_jobs.clicked.connect(lambda: self.change_view(4))
 
+        self.pushButton_help.clicked.connect(lambda: webbrowser.open(self.guide_link))
         # Init SSH buttons
         self.pushButton_connect.clicked.connect(self.ssh_connect)
         self.pushButton_drop_connection.clicked.connect(self.ssh_disconnect)

@@ -64,6 +64,28 @@
            <number>0</number>
           </property>
           <item>
+           <widget class="QPushButton" name="pushButton_help">
+            <property name="minimumSize">
+             <size>
+              <width>0</width>
+              <height>72</height>
+             </size>
+            </property>
+            <property name="autoFillBackground">
+             <bool>false</bool>
+            </property>
+            <property name="styleSheet">
+             <string notr="true">*{font: bold; font-size:30pt }</string>
+            </property>
+            <property name="text">
+             <string>Guide</string>
+            </property>
+            <property name="default">
+             <bool>false</bool>
+            </property>
+           </widget>
+          </item>
+          <item>
            <widget class="QGroupBox" name="groupBox_connectionmode">
             <property name="title">
              <string/>
@@ -820,8 +842,8 @@
                      <rect>
                       <x>0</x>
                       <y>0</y>
-                      <width>413</width>
-                      <height>118</height>
+                      <width>265</width>
+                      <height>16</height>
                      </rect>
                     </property>
                     <layout class="QVBoxLayout" name="verticalLayout_files">
@@ -1041,8 +1063,8 @@
                      <rect>
                       <x>0</x>
                       <y>0</y>
-                      <width>266</width>
-                      <height>315</height>
+                      <width>78</width>
+                      <height>156</height>
                      </rect>
                     </property>
                     <layout class="QVBoxLayout" name="verticalLayout_left_ssh">
@@ -1076,8 +1098,8 @@
                      <rect>
                       <x>0</x>
                       <y>0</y>
-                      <width>268</width>
-                      <height>281</height>
+                      <width>66</width>
+                      <height>144</height>
                      </rect>
                     </property>
                     <layout class="QVBoxLayout" name="verticalLayout_ssh_right">
@@ -1173,7 +1195,7 @@
                      <rect>
                       <x>0</x>
                       <y>0</y>
-                      <width>576</width>
+                      <width>68</width>
                       <height>16</height>
                      </rect>
                     </property>
@@ -1297,8 +1319,8 @@
                   <rect>
                    <x>0</x>
                    <y>0</y>
-                   <width>582</width>
-                   <height>192</height>
+                   <width>79</width>
+                   <height>79</height>
                   </rect>
                  </property>
                  <layout class="QVBoxLayout" name="verticalLayout_3">
