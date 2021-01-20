@@ -35,8 +35,9 @@ class Alignment:
 
             elif len(files) == 0:
                 print(f"No trimmed data to allign for {filename}")
+
             else:
-                os.system(f"{self.tool_path} -a {self.refseq} {files[0]} > {self.output_path}/{filename}.sam")
+                os.system(f"{self.tool_path} -ax sr {self.refseq} {files[0]} > {self.output_path}/{filename}.sam")
 
 
 def main():
