@@ -29,7 +29,7 @@ class Worker_local(QRunnable):
     # def __init__(self, session_ssh, files, output, widget
     def __init__(self, session_ssh, queue_label):
         super(Worker_local, self).__init__()
-        self.session = session_ssh
+        self.session: Session = session_ssh
         self.queue: dict = {}
         self.queue_label: QObject = queue_label
 
