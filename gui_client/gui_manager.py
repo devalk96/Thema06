@@ -7,14 +7,14 @@ __version__ = "1.0"
 """ This module creates a GUI to be used in combination with the main script. 
 Can be both run the main script locally or trough ssh."""
 
-import sys
-import random
-import os
-import json
-import time
-import subprocess
-import string
 import datetime
+import json
+import os
+import random
+import string
+import subprocess
+import sys
+import time
 from shutil import copy2
 from typing import Optional
 
@@ -24,9 +24,7 @@ from PyQt5.QtGui import QIcon
 from PyQt5.QtWidgets import QFileDialog, QPushButton, QLabel, QGroupBox, QWidget, QHBoxLayout, \
     QScrollArea, \
     QMessageBox, QInputDialog
-
 from jinja2 import Environment, FileSystemLoader, Template
-
 from ssh_connection import Session
 
 

@@ -26,18 +26,24 @@ gui_client.py
 ```
 
 ## Guide
-**1. Run gui_client**. 
+**1. Run gui_client**.   
 ![Starting screen](https://i.imgur.com/Epryhmt.png "Starting screen"). 
 
-**2. Select your connection mode**. 
-![Connection mode](https://i.imgur.com/JgskLTD.png "Connection mode")  
+**2. Select your connection mode**.   
+![Connection mode](https://i.imgur.com/JgskLTD.png "Connection mode")    
 SSH won't work if proxy's are used, where for example multiple SSH need to be completed in order to connect to the right host. For that we recommend to setup a [ssh tunnel](https://linuxize.com/post/how-to-setup-ssh-tunneling/ "ssh tunnel") and use the SSH Connection mode to connect to localhost. 
 
-**3. Tool setup**. 
-Add all paths to the tools.   
-![Tool screen](https://i.imgur.com/Lv5vx0j.png "Tool screen"). 
+**3. Tool setup**.   
+Add all paths to the tools. Examples can be found in the /saved_data/examples directory.  
+If you want to use these, just copy them to the saved_data directory.   
+Examples:     
+./saved_data/default_run_local.json  
+./saved_data/default_run_ssh.json  
+etc..
 
-**4. Create job**. 
+![Tool screen](https://i.imgur.com/Lv5vx0j.png "Tool screen").   
+
+**4. Create job**.   
 ![Job screen](https://i.imgur.com/HVseMff.png "Job screen"). 
 -  Optimum amount of threads is 8. More won't make the pipeline faster
 - Output path should be on the machine the script is run form. 
