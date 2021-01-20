@@ -212,9 +212,8 @@ class LogWindow(QtWidgets.QDialog):
         """Generates the log from template and from the provided data"""
         env: Environment = Environment(loader=FileSystemLoader("ui_views/resources"))
         template: Template = env.get_template('log_template.html')
-        output_from_parsed_template: bytes = template.render(data=data,
-                                                             timestamp=datetime.datetime.now().strftime(
-                                                                 "%d-%B-%y at %T"))
+        timestamp: str = datetime.datetime.now().strftime("%d-%B-%y at %T")
+        output_from_parsed_template: bytes = template.render(data=data, timestamp=timestamp)
         return [output_from_parsed_template]
 
     def print_to_browser(self, data: list):
