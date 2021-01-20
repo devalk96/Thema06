@@ -7,7 +7,6 @@ __version__ = "1.0"
 """ This module creates a GUI to be used in combination with the main script. 
 Can be both run the main script locally or trough ssh."""
 
-
 import sys
 import random
 import os
@@ -31,23 +30,22 @@ from jinja2 import Environment, FileSystemLoader, Template
 from ssh_connection import Session
 
 
-class Worker_local(QRunnable):
-    '''
-    Worker thread for local running
-    '''
+class Worker(QRunnable):
+    """
+    Worker thread which handles execution of jobs.
+    """
 
-    # def __init__(self, session_ssh, files, output, widget
     def __init__(self, session_ssh, queue_label):
-        super(Worker_local, self).__init__()
+        super(Worker, self).__init__()
         self.session: Session = session_ssh
         self.queue: dict = {}
         self.queue_label: QObject = queue_label
 
     @pyqtSlot()
     def run(self):
-        '''
+        """
         Queue function that checks for jobs every n seconds
-        '''
+        """
         seconds_between_checks: int = 1
         while True:
             time.sleep(seconds_between_checks)
@@ -148,6 +146,8 @@ class Worker_local(QRunnable):
         data["stderr"] = groupbox.stderr
         data["stdout"] = groupbox.stdout
         groupbox.data = data
+
+        # Check if job failed or was run successfully
         if not groupbox.stderr:
             file_status_label.setText("Finished succesfully!")
             save_button.setHidden(False)
@@ -158,6 +158,8 @@ class Worker_local(QRunnable):
             groupbox.success = 0
             data["success"] = 0
             file_status_label.setText("Job failed!")
+
+        # Show the log button. So user can check log files
         log_button.setHidden(False)
 
 
@@ -179,8 +181,8 @@ def run_local_script(command: str, label: QObject, console: QObject) -> tuple[li
     return list_stdout, stderr
 
 
-def run_ssh_script(session: Session, command: str, label: QObject, console: QObject) -> tuple[
-    str, list[str], list[str]]:
+def run_ssh_script(session: Session, command: str, label: QObject, console: QObject) -> \
+        tuple[str, list[str], list[str]]:
     """
     Runs a command on the ssh machine. Checks constantly for stdout, stdout, stderr change.
     """
@@ -200,21 +202,23 @@ def run_ssh_script(session: Session, command: str, label: QObject, console: QObj
     return stdin, list_stdout, list_stderr
 
 
-class LogWindow(QtWidgets.QDialog):
-    """A dialog that is created for every job. This uses a html template to populate the log"""
+def generate_log(data: dict) -> list:
+    """Generates the log from template and from the provided data"""
+    env: Environment = Environment(loader=FileSystemLoader("ui_views/resources"))
+    template: Template = env.get_template('log_template.html')
+    timestamp: str = datetime.datetime.now().strftime("%d-%B-%y at %T")
+    output_from_parsed_template: bytes = template.render(data=data, timestamp=timestamp)
+    return [output_from_parsed_template]
 
+
+class LogWindow(QtWidgets.QDialog):
+    """
+    A dialog that is created for every job. This uses a html template to populate the texbrowser
+    """
     def __init__(self):
         super(LogWindow, self).__init__()
         uic.loadUi("ui_views/logwindow.ui", self)
         self.pushButton_close.clicked.connect(lambda: self.close())
-
-    def generate_log(self, data: dict) -> list:
-        """Generates the log from template and from the provided data"""
-        env: Environment = Environment(loader=FileSystemLoader("ui_views/resources"))
-        template: Template = env.get_template('log_template.html')
-        timestamp: str = datetime.datetime.now().strftime("%d-%B-%y at %T")
-        output_from_parsed_template: bytes = template.render(data=data, timestamp=timestamp)
-        return [output_from_parsed_template]
 
     def print_to_browser(self, data: list):
         """Add the lines in data to the textbrowser"""
@@ -274,8 +278,8 @@ class MainWindow(QtWidgets.QMainWindow):
 
         # Start subprocess
         self.threadpool: QThreadPool = QThreadPool()
-        self.worker: Worker_local = Worker_local(session_ssh=self.session,
-                                                 queue_label=self.label_active_jobs_nr)
+        self.worker: Worker = Worker(session_ssh=self.session,
+                                     queue_label=self.label_active_jobs_nr)
         self.threadpool.start(self.worker)
         # Load defaults:
         self.set_default_ssh()
@@ -780,16 +784,19 @@ class MainWindow(QtWidgets.QMainWindow):
                                    , details=str(e))
 
 
-def set_default(path, data):
+def set_default(path: str, data: dict[str: str]):
     """
     Creates a json file with name according to provided path
     :param path: filename
     :param data: data containing the values of the individual editLine objects
     :return: nothing
     """
+    # Notify user with message box
+    informative: str = "\n".join([f"{x}:\t{data[x] if x != 'password' else ''}" for x in data])
     create_message_box(text="Set default",
-                       informative="\n".join(
-                           [f"{x}:\t{data[x] if x != 'password' else ''}" for x in data]))
+                       informative=informative)
+
+    # Save data as json
     with open(path, "w") as stream:
         stream.write(json.dumps(data, indent=4))
 
@@ -814,8 +821,7 @@ def create_message_box(text="no text provided", informative=None, title="popup",
     :param informative: extra information
     :param title: title of the popup
     :param details: extra details
-    :param msg_type: str that determens the displayed icon
-    :return: noting
+    :param msg_type: str that determines the displayed icon
     """
     msg: QObject = QMessageBox()
     icon: dict[str, QMessageBox.icon] = {"info": QMessageBox.Information,
